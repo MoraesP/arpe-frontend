@@ -10,7 +10,13 @@ import { join } from 'node:path';
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
-const angularApp = new AngularNodeAppEngine();
+// Vercel roteia via proxy reverso -- sem confiar nesses headers, o Angular
+// nao consegue resolver o host publico real pra validar contra allowedHosts
+// (angular.json) e cai no fallback vazio em vez de renderizar via SSR de
+// verdade. Vercel e um proxy confiavel (nossa propria hospedagem).
+const angularApp = new AngularNodeAppEngine({
+  trustProxyHeaders: ['x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-for'],
+});
 
 /**
  * Example Express Rest API endpoints can be defined here.
