@@ -1,8 +1,27 @@
 @if (pedidoConfirmado(); as orderId) {
   <section class="pagina confirmacao">
-    <h1>Pedido confirmado!</h1>
-    <p>Seu pedido foi criado com sucesso. Guarde o ID abaixo — você vai precisar dele, junto com o e-mail usado
-      na compra, para consultar o status (você recebe uma chave por e-mail na hora de consultar).</p>
+    @if (pixQrCode(); as codigo) {
+      <h1>Falta pagar com Pix</h1>
+      <p>Escaneie o QR code abaixo no app do seu banco, ou copie o código.</p>
+
+      @if (pixQrCodeBase64(); as imagem) {
+        <img class="pix-qr" [src]="'data:image/png;base64,' + imagem" alt="QR code Pix" />
+      }
+
+      <div class="pix-copia-cola">
+        <code>{{ codigo }}</code>
+        <button type="button" class="btn btn-secondary" (click)="copiarCodigoPix()">
+          {{ pixCopiado() ? 'Copiado!' : 'Copiar código' }}
+        </button>
+      </div>
+
+      <p class="aviso">Assim que o pagamento for confirmado, você recebe um e-mail. Guarde o ID do pedido abaixo.</p>
+    } @else {
+      <h1>Pedido confirmado!</h1>
+      <p>Seu pedido foi criado com sucesso. Guarde o ID abaixo — você vai precisar dele, junto com o e-mail usado
+        na compra, para consultar o status (você recebe uma chave por e-mail na hora de consultar).</p>
+    }
+
     <p class="order-id">{{ orderId }}</p>
     <div class="acoes">
       <button type="button" class="btn btn-primary" (click)="irParaConsulta()">Consultar meu pedido</button>
@@ -20,65 +39,71 @@
     <h1>Finalizar compra</h1>
 
     <div class="layout">
-      <form class="form" (ngSubmit)="confirmar()">
-        <h2>Seus dados</h2>
-        <label>
-          Nome completo
-          <input type="text" [(ngModel)]="nome" name="nome" required />
-        </label>
-        <label>
-          E-mail
-          <input type="email" [(ngModel)]="email" name="email" required />
-        </label>
-
-        <h2>Envio</h2>
-        <label>
-          Método
-          <select [(ngModel)]="metodo" name="metodo">
-            <option value="RETIRADA">Retirada local (Maringá/PR)</option>
-            <option value="CORREIOS">Correios</option>
-          </select>
-        </label>
-
-        @if (metodo() === 'RETIRADA') {
+      @if (passo() === 'dados') {
+        <form class="form" (ngSubmit)="irParaPagamento()">
+          <h2>Seus dados</h2>
           <label>
-            Telefone de contato
-            <input type="tel" [(ngModel)]="telefone" name="telefone" required placeholder="(44) 99999-9999" />
-          </label>
-        } @else {
-          <label>
-            CEP de destino
-            <input type="text" [(ngModel)]="cepDestino" name="cepDestino" required placeholder="00000-000" />
+            Nome completo
+            <input type="text" [(ngModel)]="nome" name="nome" required />
           </label>
           <label>
-            Endereço de entrega
-            <textarea [(ngModel)]="enderecoEntrega" name="enderecoEntrega" required
-              placeholder="Rua, número, bairro, cidade, UF"></textarea>
+            E-mail
+            <input type="email" [(ngModel)]="email" name="email" required />
           </label>
-        }
 
-        <h2>Pagamento</h2>
-        <label>
-          Forma de pagamento
-          <select [(ngModel)]="metodoPagamento" name="metodoPagamento">
-            <option value="PIX">Pix</option>
-            <option value="CARTAO">Cartão de crédito</option>
-          </select>
-        </label>
+          <h2>Envio</h2>
+          <label>
+            Método
+            <select [(ngModel)]="metodo" name="metodo">
+              <option value="RETIRADA">Retirada local (Maringá/PR)</option>
+              <option value="CORREIOS">Correios</option>
+            </select>
+          </label>
 
-        <p class="lgpd">
-          Seus dados são usados apenas para processar este pedido.
-          <a routerLink="/privacidade">Saiba mais em Política de Privacidade.</a>
-        </p>
+          @if (metodo() === 'RETIRADA') {
+            <label>
+              Telefone de contato
+              <input type="tel" [(ngModel)]="telefone" name="telefone" required placeholder="(44) 99999-9999" />
+            </label>
+          } @else {
+            <label>
+              CEP de destino
+              <input type="text" [(ngModel)]="cepDestino" name="cepDestino" required placeholder="00000-000" />
+            </label>
+            <label>
+              Endereço de entrega
+              <textarea [(ngModel)]="enderecoEntrega" name="enderecoEntrega" required
+                placeholder="Rua, número, bairro, cidade, UF"></textarea>
+            </label>
+          }
 
-        @if (erro()) {
-          <p class="campo-erro">{{ erro() }}</p>
-        }
+          <p class="lgpd">
+            Seus dados são usados apenas para processar este pedido.
+            <a routerLink="/privacidade">Saiba mais em Política de Privacidade.</a>
+          </p>
 
-        <button type="submit" class="btn btn-primary btn-full" [disabled]="!totais() || enviando()">
-          {{ enviando() ? 'Processando...' : 'Finalizar compra' }}
-        </button>
-      </form>
+          <button type="submit" class="btn btn-primary btn-full" [disabled]="!totais()">
+            Continuar para pagamento
+          </button>
+        </form>
+      } @else {
+        <div class="form">
+          <h2>Pagamento</h2>
+          <button type="button" class="btn-link" (click)="voltarParaDados()">← Voltar e editar dados</button>
+
+          @if (brickErro(); as msg) {
+            <p class="campo-erro">{{ msg }}</p>
+          }
+          @if (erro()) {
+            <p class="campo-erro">{{ erro() }}</p>
+          }
+
+          @if (brickCarregando()) {
+            <p class="aviso">Carregando formulário de pagamento...</p>
+          }
+          <div id="paymentBrick_container"></div>
+        </div>
+      }
 
       <aside class="resumo">
         <h2>Resumo</h2>

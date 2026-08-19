@@ -34,7 +34,10 @@ export interface CheckoutPreferenciaResponse {
 }
 
 export interface CheckoutConfirmarRequest extends CheckoutPreferenciaRequest {
-  cardToken: string;
+  cardToken: string | null;
+  paymentMethodId: string;
+  installments: number | null;
+  issuerId: string | null;
   metodoPagamento: PaymentMethod;
 }
 
@@ -42,4 +45,6 @@ export interface CheckoutConfirmarResponse {
   orderId: string;
   status: string;
   totalPagoCents: number;
+  pixQrCode: string | null;
+  pixQrCodeBase64: string | null;
 }
