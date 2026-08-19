@@ -1,0 +1,27 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: var(--color-offwhite);
+  border-bottom: 1px solid var(--color-gelo);
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--color-petroleo);
+  text-decoration: none;
+  letter-spacing: 0.02em;
+}
+
+.nav {
+  display: flex;
+  gap: 1rem;
+
+  a {
+    color: var(--color-oceano);
+    text-decoration: none;
+    font-weight: 500;
+  }
+}

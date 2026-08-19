@@ -1,0 +1,49 @@
+@if (produto(); as produto) {
+  <section class="detalhe">
+    @if (produto.photoUrl) {
+      <img [src]="produto.photoUrl" [alt]="produto.name" />
+    } @else {
+      <div class="foto-placeholder" aria-hidden="true"></div>
+    }
+
+    <div class="info">
+      <h1>{{ produto.name }}</h1>
+
+      @if (produto.isPresale && produto.presaleDepositAmountCents !== null) {
+        <app-badge-pre-venda [presaleDepositAmountCents]="produto.presaleDepositAmountCents!" />
+        <p class="aviso-pre-venda">
+          Item de pré-venda — o envio ocorre somente quando todos os itens do pedido estiverem disponíveis.
+        </p>
+      }
+
+      @if (produto.description) {
+        <p class="descricao">{{ produto.description }}</p>
+      }
+
+      <p class="preco">{{ produto.priceCents | moeda }}</p>
+
+      @if (produto.tags.length > 0) {
+        <div class="tags">
+          @for (tag of produto.tags; track tag.id) {
+            <span class="tag">{{ tag.name }}</span>
+          }
+        </div>
+      }
+
+      @if (produto.quantity > 0) {
+        <div class="acao">
+          <input type="number" min="1" [max]="produto.quantity" [(ngModel)]="quantidade" />
+          <button type="button" (click)="adicionarAoCarrinho()">Adicionar ao carrinho</button>
+        </div>
+
+        @if (adicionado()) {
+          <p class="confirmacao" role="status">Adicionado ao carrinho.</p>
+        }
+      } @else {
+        <p class="esgotado">Fora de estoque no momento.</p>
+      }
+    </div>
+  </section>
+} @else {
+  <p class="carregando">Carregando...</p>
+}

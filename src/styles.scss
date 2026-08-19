@@ -1,0 +1,21 @@
+@use 'styles/tokens';
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+a {
+  color: var(--color-interactive);
+}

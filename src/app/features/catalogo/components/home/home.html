@@ -1,0 +1,13 @@
+<section class="destaques">
+  <h1>Destaques</h1>
+
+  @if (destaques().length === 0) {
+    <p>Nenhum produto em destaque no momento.</p>
+  } @else {
+    <div class="grid">
+      @for (produto of destaques(); track produto.id) {
+        <app-produto-card [produto]="produto" />
+      }
+    </div>
+  }
+</section>

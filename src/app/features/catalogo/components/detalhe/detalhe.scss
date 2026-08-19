@@ -1,0 +1,86 @@
+.detalhe {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 1.5rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+img,
+.foto-placeholder {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--color-offwhite);
+  border-radius: 8px;
+}
+
+h1 {
+  color: var(--color-petroleo);
+  margin-top: 0;
+}
+
+.aviso-pre-venda {
+  font-size: 0.85rem;
+  color: var(--color-oceano);
+}
+
+.preco {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-petroleo);
+}
+
+.tags {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.tag {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--color-gelo);
+  border-radius: 999px;
+  color: var(--color-oceano);
+}
+
+.acao {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  input {
+    width: 4rem;
+    padding: 0.5rem;
+    border: 1px solid var(--color-gelo);
+    border-radius: 6px;
+  }
+
+  button {
+    background: var(--color-oceano);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+
+    &:hover {
+      background: var(--color-petroleo);
+    }
+  }
+}
+
+.confirmacao {
+  color: var(--color-oceano);
+  font-size: 0.85rem;
+}
+
+.esgotado {
+  color: var(--color-grafite);
+  font-style: italic;
+}

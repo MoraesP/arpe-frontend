@@ -1,0 +1,5 @@
+<a class="carrinho-mini" routerLink="/carrinho">
+  <span class="icone" aria-hidden="true">🛒</span>
+  <span class="quantidade">{{ carrinho.totalItens() }}</span>
+  <span class="total">{{ carrinho.totalCents() | moeda }}</span>
+</a>

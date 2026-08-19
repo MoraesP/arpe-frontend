@@ -1,0 +1,33 @@
+.listagem {
+  padding: 1.5rem;
+}
+
+h1 {
+  color: var(--color-petroleo);
+}
+
+.filtros {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+
+  input,
+  select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-gelo);
+    border-radius: 6px;
+    font-size: 0.9rem;
+  }
+
+  input {
+    flex: 1;
+    min-width: 200px;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}

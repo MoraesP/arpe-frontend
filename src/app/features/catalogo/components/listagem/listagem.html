@@ -1,0 +1,34 @@
+<section class="listagem">
+  <h1>Catálogo</h1>
+
+  <div class="filtros">
+    <input
+      type="search"
+      placeholder="Buscar por nome..."
+      [ngModel]="busca()"
+      (ngModelChange)="busca.set($event)"
+    />
+
+    <select [ngModel]="tagSelecionada()" (ngModelChange)="tagSelecionada.set($event)">
+      <option value="">Todas as tags</option>
+      @for (tag of tags(); track tag.id) {
+        <option [value]="tag.name">{{ tag.name }}</option>
+      }
+    </select>
+
+    <select [ngModel]="ordenar()" (ngModelChange)="ordenar.set($event)">
+      <option value="desc">Mais recentes</option>
+      <option value="asc">Mais antigos</option>
+    </select>
+  </div>
+
+  @if (produtos().length === 0) {
+    <p>Nenhum produto encontrado.</p>
+  } @else {
+    <div class="grid">
+      @for (produto of produtos(); track produto.id) {
+        <app-produto-card [produto]="produto" />
+      }
+    </div>
+  }
+</section>

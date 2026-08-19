@@ -1,0 +1,17 @@
+// Paleta ArPe -- ver docs/design-system.md. Custom properties (nao $variables
+// Sass) para funcionar em qualquer componente via var(--color-x) sem @use,
+// dado que view encapsulation do Angular isola seletor/classe mas nao
+// custom properties (elas herdam normalmente pela arvore do DOM).
+:root {
+  --color-petroleo: #123c4a;
+  --color-oceano: #287b8f;
+  --color-gelo: #8fd3e3;
+  --color-offwhite: #f5f7f6;
+  --color-grafite: #263238;
+
+  --color-background: var(--color-offwhite);
+  --color-text: var(--color-grafite);
+  --color-text-brand: var(--color-petroleo);
+  --color-interactive: var(--color-oceano);
+  --color-accent: var(--color-gelo);
+}

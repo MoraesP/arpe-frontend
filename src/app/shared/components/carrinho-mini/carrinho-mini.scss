@@ -1,0 +1,21 @@
+.carrinho-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+  color: var(--color-petroleo);
+  font-weight: 600;
+}
+
+.quantidade {
+  background: var(--color-oceano);
+  color: var(--color-offwhite);
+  border-radius: 999px;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  padding: 0 0.3rem;
+}
