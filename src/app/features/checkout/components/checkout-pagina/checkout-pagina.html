@@ -1,8 +1,8 @@
 @if (pedidoConfirmado(); as orderId) {
   <section class="pagina confirmacao">
     <h1>Pedido confirmado!</h1>
-    <p>Seu pedido foi criado com sucesso. Guarde o ID abaixo — você vai precisar dele, junto com a chave de
-      validação enviada por e-mail, para consultar o status.</p>
+    <p>Seu pedido foi criado com sucesso. Guarde o ID abaixo — você vai precisar dele, junto com o e-mail usado
+      na compra, para consultar o status (você recebe uma chave por e-mail na hora de consultar).</p>
     <p class="order-id">{{ orderId }}</p>
     <div class="acoes">
       <button type="button" class="btn btn-primary" (click)="irParaConsulta()">Consultar meu pedido</button>
