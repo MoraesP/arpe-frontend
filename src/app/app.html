@@ -1,5 +1,9 @@
-<app-header />
+@if (!ehAdmin()) {
+  <app-header />
+}
 <main>
   <router-outlet />
 </main>
-<app-cart-drawer />
+@if (!ehAdmin()) {
+  <app-cart-drawer />
+}
