@@ -34,6 +34,10 @@ export const routes: Routes = [
       import('./features/institucional/components/privacidade/privacidade').then((m) => m.Privacidade),
   },
   {
+    path: 'termos',
+    loadComponent: () => import('./features/institucional/components/termos/termos').then((m) => m.Termos),
+  },
+  {
     path: 'admin/auth/login',
     loadComponent: () => import('./features/admin/auth/components/login/login').then((m) => m.Login),
   },

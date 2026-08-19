@@ -1,0 +1,10 @@
+@if (visivel()) {
+  <div class="banner" role="dialog" aria-label="Aviso de cookies">
+    <p>
+      Usamos dados armazenados no seu navegador para o carrinho de compras funcionar. Ao continuar navegando,
+      você concorda com o uso descrito na nossa
+      <a routerLink="/privacidade">Política de Privacidade</a>.
+    </p>
+    <button type="button" class="btn btn-primary" (click)="aceitar()">Aceitar</button>
+  </div>
+}
