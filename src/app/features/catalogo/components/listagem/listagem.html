@@ -23,7 +23,7 @@
   </div>
 
   @if (produtos().length === 0) {
-    <p>Nenhum produto encontrado.</p>
+    <p class="vazio">Nenhum produto encontrado.</p>
   } @else {
     <div class="grid">
       @for (produto of produtos(); track produto.id) {

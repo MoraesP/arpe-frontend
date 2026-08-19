@@ -1,21 +1,62 @@
 .carrinho-mini {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  text-decoration: none;
-  color: var(--color-petroleo);
-  font-weight: 600;
+  gap: var(--space-sm);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-xs) var(--space-sm) var(--space-xs) var(--space-xs);
+  border-radius: var(--radius-full);
+  transition: background-color var(--transition-base);
+
+  &:hover {
+    background: var(--color-offwhite);
+  }
 }
 
-.quantidade {
-  background: var(--color-oceano);
-  color: var(--color-offwhite);
-  border-radius: 999px;
-  min-width: 1.4rem;
-  height: 1.4rem;
+.icone-wrap {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  padding: 0 0.3rem;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--color-offwhite);
+  color: var(--color-text-brand);
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.contador {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-interactive);
+  color: var(--color-white);
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.total {
+  font-weight: 700;
+  color: var(--color-text-brand);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .total {
+    display: none;
+  }
 }

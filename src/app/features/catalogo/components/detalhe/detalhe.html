@@ -1,10 +1,12 @@
 @if (produto(); as produto) {
   <section class="detalhe">
-    @if (produto.photoUrl) {
-      <img [src]="produto.photoUrl" [alt]="produto.name" />
-    } @else {
-      <div class="foto-placeholder" aria-hidden="true"></div>
-    }
+    <div class="foto-wrap">
+      @if (produto.photoUrl) {
+        <img [src]="produto.photoUrl" [alt]="produto.name" />
+      } @else {
+        <div class="foto-placeholder" aria-hidden="true"></div>
+      }
+    </div>
 
     <div class="info">
       <h1>{{ produto.name }}</h1>
@@ -33,7 +35,9 @@
       @if (produto.quantity > 0) {
         <div class="acao">
           <input type="number" min="1" [max]="produto.quantity" [(ngModel)]="quantidade" />
-          <button type="button" (click)="adicionarAoCarrinho()">Adicionar ao carrinho</button>
+          <button type="button" class="btn btn-primary" (click)="adicionarAoCarrinho()">
+            Adicionar ao carrinho
+          </button>
         </div>
 
         @if (adicionado()) {

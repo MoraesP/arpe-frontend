@@ -1,12 +1,19 @@
 .detalhe {
+  max-width: 1080px;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  padding: 1.5rem;
+  gap: var(--space-xxl);
+  padding: var(--space-xl);
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
   }
+}
+
+.foto-wrap {
+  border-radius: var(--radius-md);
+  overflow: hidden;
 }
 
 img,
@@ -14,73 +21,79 @@ img,
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  background: var(--color-offwhite);
-  border-radius: 8px;
+  display: block;
+}
+
+.foto-placeholder {
+  background: linear-gradient(135deg, var(--color-hairline-soft), var(--color-hairline));
 }
 
 h1 {
-  color: var(--color-petroleo);
+  font-size: 22px;
   margin-top: 0;
 }
 
 .aviso-pre-venda {
   font-size: 0.85rem;
-  color: var(--color-oceano);
+  color: var(--color-interactive);
+  margin-top: var(--space-sm);
+}
+
+.descricao {
+  color: var(--color-text);
+  line-height: 1.6;
 }
 
 .preco {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
-  color: var(--color-petroleo);
+  color: var(--color-text-brand);
 }
 
 .tags {
   display: flex;
-  gap: 0.4rem;
-  margin-bottom: 1rem;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-lg);
+  flex-wrap: wrap;
 }
 
 .tag {
   font-size: 0.75rem;
-  padding: 0.2rem 0.5rem;
-  border: 1px solid var(--color-gelo);
-  border-radius: 999px;
-  color: var(--color-oceano);
+  padding: var(--space-xxs) var(--space-sm);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-full);
+  color: var(--color-interactive);
 }
 
 .acao {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-sm);
   align-items: center;
 
   input {
-    width: 4rem;
-    padding: 0.5rem;
-    border: 1px solid var(--color-gelo);
-    border-radius: 6px;
-  }
+    width: 4.5rem;
+    height: 48px;
+    padding: 0 var(--space-sm);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 1rem;
+    text-align: center;
 
-  button {
-    background: var(--color-oceano);
-    color: white;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-
-    &:hover {
-      background: var(--color-petroleo);
+    &:focus {
+      outline: none;
+      border-color: var(--color-interactive);
     }
   }
 }
 
 .confirmacao {
-  color: var(--color-oceano);
+  color: var(--color-interactive);
   font-size: 0.85rem;
+  margin-top: var(--space-sm);
 }
 
 .esgotado {
-  color: var(--color-grafite);
+  color: var(--color-text-muted);
   font-style: italic;
 }

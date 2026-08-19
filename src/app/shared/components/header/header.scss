@@ -1,27 +1,71 @@
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.5rem;
-  background: var(--color-offwhite);
-  border-bottom: 1px solid var(--color-gelo);
+  gap: var(--space-lg);
+  padding: var(--space-md) var(--space-xl);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-hairline);
 }
 
 .logo {
-  font-weight: 800;
-  font-size: 1.25rem;
-  color: var(--color-petroleo);
-  text-decoration: none;
-  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  height: 40px;
+
+  img {
+    height: 100%;
+    width: auto;
+  }
 }
 
 .nav {
   display: flex;
-  gap: 1rem;
+  gap: var(--space-lg);
+  flex: 1;
 
   a {
-    color: var(--color-oceano);
+    color: var(--color-text);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: var(--space-sm) 0;
+    border-bottom: 2px solid transparent;
+    transition:
+      color var(--transition-base),
+      border-color var(--transition-base);
+
+    &:hover {
+      color: var(--color-interactive);
+    }
+
+    &.ativo {
+      color: var(--color-text-brand);
+      border-bottom-color: var(--color-interactive);
+    }
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: var(--space-sm) var(--space-base);
+    gap: var(--space-sm);
+  }
+
+  .logo {
+    height: 28px;
+  }
+
+  .nav {
+    gap: var(--space-base);
+    flex: 0 1 auto;
+    white-space: nowrap;
+
+    a {
+      font-size: 0.8rem;
+    }
   }
 }

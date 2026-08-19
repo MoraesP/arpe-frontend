@@ -1,13 +1,15 @@
 .destaques {
-  padding: 1.5rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-xl) var(--space-section);
 }
 
 h1 {
-  color: var(--color-petroleo);
+  font-size: 28px;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-lg);
 }

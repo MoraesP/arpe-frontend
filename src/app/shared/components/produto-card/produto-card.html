@@ -1,17 +1,20 @@
 <a class="card" [routerLink]="['/produtos', produto().id]">
-  @if (produto().photoUrl) {
-    <img [src]="produto().photoUrl" [alt]="produto().name" />
-  } @else {
-    <div class="foto-placeholder" aria-hidden="true"></div>
-  }
+  <div class="foto-wrap">
+    @if (produto().photoUrl) {
+      <img [src]="produto().photoUrl" [alt]="produto().name" />
+    } @else {
+      <div class="foto-placeholder" aria-hidden="true"></div>
+    }
+
+    @if (produto().isPresale && produto().presaleDepositAmountCents !== null) {
+      <div class="badge-flutuante">
+        <app-badge-pre-venda [presaleDepositAmountCents]="produto().presaleDepositAmountCents!" />
+      </div>
+    }
+  </div>
 
   <div class="conteudo">
     <h3>{{ produto().name }}</h3>
-
-    @if (produto().isPresale && produto().presaleDepositAmountCents !== null) {
-      <app-badge-pre-venda [presaleDepositAmountCents]="produto().presaleDepositAmountCents!" />
-    }
-
     <p class="preco">{{ produto().priceCents | moeda }}</p>
   </div>
 </a>

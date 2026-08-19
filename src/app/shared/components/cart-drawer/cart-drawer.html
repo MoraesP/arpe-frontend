@@ -1,0 +1,52 @@
+<div class="scrim" [class.visivel]="carrinho.drawerAberto()" (click)="fechar()"></div>
+
+<aside class="drawer" [class.aberto]="carrinho.drawerAberto()" role="dialog" aria-label="Carrinho">
+  <header class="drawer-header">
+    <h2>Seu carrinho</h2>
+    <button type="button" class="fechar" (click)="fechar()" aria-label="Fechar carrinho">✕</button>
+  </header>
+
+  @if (carrinho.itens().length === 0) {
+    <div class="vazio">
+      <p>Seu carrinho está vazio.</p>
+    </div>
+  } @else {
+    <ul class="itens">
+      @for (item of carrinho.itens(); track item.productId) {
+        <li class="item">
+          @if (item.photoUrl) {
+            <img [src]="item.photoUrl" [alt]="item.name" />
+          } @else {
+            <div class="foto-placeholder" aria-hidden="true"></div>
+          }
+
+          <div class="info">
+            <p class="nome">{{ item.name }}</p>
+            @if (item.isPresale) {
+              <p class="presale">Entrada de pré-venda</p>
+            }
+            <p class="qtd">Qtd: {{ item.quantity }}</p>
+          </div>
+
+          <div class="preco-acao">
+            <p class="preco">{{ subtotalItem(item) | moeda }}</p>
+            <button type="button" class="remover" (click)="remover(item.productId)" aria-label="Remover item">
+              Remover
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+
+    <footer class="drawer-footer">
+      <div class="total">
+        <span>Total</span>
+        <span>{{ carrinho.totalCents() | moeda }}</span>
+      </div>
+      <button type="button" class="btn btn-secondary btn-full" (click)="irPara('/carrinho')">Ver carrinho</button>
+      <button type="button" class="btn btn-primary btn-full" (click)="irPara('/checkout')">
+        Finalizar compra
+      </button>
+    </footer>
+  }
+</aside>

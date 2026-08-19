@@ -1,9 +1,10 @@
 .badge {
   display: inline-block;
-  padding: 0.25rem 0.6rem;
-  border-radius: 999px;
-  background: var(--color-gelo);
-  color: var(--color-petroleo);
-  font-size: 0.75rem;
-  font-weight: 600;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
+  background: var(--color-white);
+  color: var(--color-text-brand);
+  font-size: 0.7rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-card);
 }

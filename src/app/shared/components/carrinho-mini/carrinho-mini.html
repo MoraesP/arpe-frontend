@@ -1,5 +1,13 @@
-<a class="carrinho-mini" routerLink="/carrinho">
-  <span class="icone" aria-hidden="true">🛒</span>
-  <span class="quantidade">{{ carrinho.totalItens() }}</span>
-  <span class="total">{{ carrinho.totalCents() | moeda }}</span>
-</a>
+<button type="button" class="carrinho-mini" (click)="carrinho.abrirDrawer()" aria-label="Abrir carrinho">
+  <span class="icone-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+      <path d="M3 3h2l.4 2M7 13h10l3.2-8H5.4M7 13L5.4 5M7 13l-1.6 4h13.2M9 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm9 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    @if (carrinho.totalItens() > 0) {
+      <span class="contador">{{ carrinho.totalItens() }}</span>
+    }
+  </span>
+  @if (carrinho.totalItens() > 0) {
+    <span class="total">{{ carrinho.totalCents() | moeda }}</span>
+  }
+</button>

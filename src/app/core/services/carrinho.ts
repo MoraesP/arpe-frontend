@@ -17,6 +17,9 @@ export class Carrinho {
   private readonly _itens = signal<CartItem[]>(this.carregarDoStorage());
   readonly itens = this._itens.asReadonly();
 
+  private readonly _drawerAberto = signal(false);
+  readonly drawerAberto = this._drawerAberto.asReadonly();
+
   readonly totalItens = computed(() => this._itens().reduce((total, item) => total + item.quantity, 0));
 
   readonly temPreVenda = computed(() => this._itens().some((item) => item.isPresale));
@@ -42,6 +45,15 @@ export class Carrinho {
       }
       return [...itens, item];
     });
+    this._drawerAberto.set(true);
+  }
+
+  abrirDrawer(): void {
+    this._drawerAberto.set(true);
+  }
+
+  fecharDrawer(): void {
+    this._drawerAberto.set(false);
   }
 
   atualizarQuantidade(productId: string, quantity: number): void {
