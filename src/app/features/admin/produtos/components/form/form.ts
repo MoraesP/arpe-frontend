@@ -33,6 +33,10 @@ export class Form {
   protected readonly isFeatured = signal(false);
   protected readonly tagsTexto = signal('');
 
+  protected readonly photoUrl = signal<string | null>(null);
+  protected readonly enviandoFoto = signal(false);
+  protected readonly erroFoto = signal<string | null>(null);
+
   protected readonly carregando = signal(false);
   protected readonly salvando = signal(false);
   protected readonly erro = signal<string | null>(null);
@@ -56,6 +60,7 @@ export class Form {
           );
           this.isFeatured.set(produto.isFeatured);
           this.tagsTexto.set(produto.tags.map((t) => t.name).join(', '));
+          this.photoUrl.set(produto.photoUrl);
           this.carregando.set(false);
         },
         error: () => {
@@ -104,6 +109,30 @@ export class Form {
       error: (err: HttpErrorResponse) => {
         this.erro.set(err.error?.detail ?? 'Não foi possível salvar o produto.');
         this.salvando.set(false);
+      },
+    });
+  }
+
+  selecionarFoto(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file || !this.produtoId) {
+      return;
+    }
+
+    this.erroFoto.set(null);
+    this.enviandoFoto.set(true);
+
+    this.adminProdutoService.uploadFoto(this.produtoId, file).subscribe({
+      next: (produto) => {
+        this.photoUrl.set(produto.photoUrl);
+        this.enviandoFoto.set(false);
+        input.value = '';
+      },
+      error: (err: HttpErrorResponse) => {
+        this.erroFoto.set(err.error?.detail ?? 'Não foi possível enviar a foto.');
+        this.enviandoFoto.set(false);
+        input.value = '';
       },
     });
   }

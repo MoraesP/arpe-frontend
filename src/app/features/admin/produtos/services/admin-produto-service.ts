@@ -39,4 +39,10 @@ export class AdminProdutoService {
   excluir(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/admin/produtos/${id}`);
   }
+
+  uploadFoto(id: string, file: File): Observable<Product> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<Product>(`${this.baseUrl}/admin/produtos/${id}/foto`, formData);
+  }
 }

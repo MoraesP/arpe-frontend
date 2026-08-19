@@ -14,6 +14,24 @@
       <textarea [(ngModel)]="description" name="description"></textarea>
     </label>
 
+    @if (modoEdicao) {
+      <div class="foto-produto">
+        <span class="rotulo">Foto do produto</span>
+        @if (photoUrl(); as url) {
+          <img [src]="url" alt="Foto do produto" class="foto-preview" />
+        } @else {
+          <p class="sem-foto">Nenhuma foto enviada ainda.</p>
+        }
+        <label class="btn btn-secondary btn-upload">
+          {{ enviandoFoto() ? 'Enviando...' : (photoUrl() ? 'Trocar foto' : 'Enviar foto') }}
+          <input type="file" accept="image/*" (change)="selecionarFoto($event)" [disabled]="enviandoFoto()" hidden />
+        </label>
+        @if (erroFoto()) {
+          <p class="campo-erro">{{ erroFoto() }}</p>
+        }
+      </div>
+    }
+
     <label>
       Preço (R$)
       <input type="number" step="0.01" min="0" [ngModel]="priceReais()" (ngModelChange)="priceReais.set($event)" name="priceReais" required />

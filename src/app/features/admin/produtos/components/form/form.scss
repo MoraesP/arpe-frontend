@@ -33,3 +33,41 @@ h1 {
 .vazio {
   color: var(--color-text-muted);
 }
+
+.foto-produto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+
+  .rotulo {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .sem-foto {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+  }
+}
+
+.foto-preview {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-offwhite);
+}
+
+// sobrescreve o ".form label" global (flex-column, bold) -- aqui e um
+// botao, nao um rotulo de campo
+.foto-produto .btn-upload {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  font-weight: 500;
+  cursor: pointer;
+}
