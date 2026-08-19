@@ -1,1 +1,37 @@
-<p>consulta works!</p>
+<section class="pagina">
+  <h1>Consultar pedido</h1>
+  <p class="intro">Informe o ID do pedido, o e-mail usado na compra e a chave de validação enviada por e-mail.</p>
+
+  <form class="form" (ngSubmit)="consultar()">
+    <label>
+      ID do pedido
+      <input type="text" [(ngModel)]="orderId" name="orderId" required placeholder="ex: 550e8400-e29b-..." />
+    </label>
+
+    <label>
+      E-mail
+      <input type="email" [(ngModel)]="email" name="email" required />
+    </label>
+
+    <label>
+      Chave de validação
+      <input type="text" [(ngModel)]="chaveValidacao" name="chaveValidacao" required placeholder="8 caracteres" />
+    </label>
+
+    <button type="submit" class="btn btn-primary" [disabled]="carregando()">
+      {{ carregando() ? 'Consultando...' : 'Consultar' }}
+    </button>
+  </form>
+
+  @if (erro()) {
+    <p class="erro">
+      Pedido não encontrado para os dados informados. Confira o ID, o e-mail e a chave de validação.
+    </p>
+  }
+
+  @if (resultado(); as order) {
+    <div class="resultado">
+      <app-pedido-detalhe [order]="order" />
+    </div>
+  }
+</section>

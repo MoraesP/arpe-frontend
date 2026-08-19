@@ -1,1 +1,116 @@
-<p>checkout-pagina works!</p>
+@if (pedidoConfirmado(); as orderId) {
+  <section class="pagina confirmacao">
+    <h1>Pedido confirmado!</h1>
+    <p>Seu pedido foi criado com sucesso. Guarde o ID abaixo — você vai precisar dele, junto com a chave de
+      validação enviada por e-mail, para consultar o status.</p>
+    <p class="order-id">{{ orderId }}</p>
+    <div class="acoes">
+      <button type="button" class="btn btn-primary" (click)="irParaConsulta()">Consultar meu pedido</button>
+      <a routerLink="/produtos" class="btn btn-secondary">Continuar comprando</a>
+    </div>
+  </section>
+} @else if (carrinho.itens().length === 0) {
+  <section class="pagina">
+    <h1>Checkout</h1>
+    <p>Seu carrinho está vazio.</p>
+    <a routerLink="/produtos" class="btn btn-primary">Ver catálogo</a>
+  </section>
+} @else {
+  <section class="pagina">
+    <h1>Finalizar compra</h1>
+
+    <div class="layout">
+      <form class="form" (ngSubmit)="confirmar()">
+        <h2>Seus dados</h2>
+        <label>
+          Nome completo
+          <input type="text" [(ngModel)]="nome" name="nome" required />
+        </label>
+        <label>
+          E-mail
+          <input type="email" [(ngModel)]="email" name="email" required />
+        </label>
+
+        <h2>Envio</h2>
+        <label>
+          Método
+          <select [(ngModel)]="metodo" name="metodo">
+            <option value="RETIRADA">Retirada local (Maringá/PR)</option>
+            <option value="CORREIOS">Correios</option>
+          </select>
+        </label>
+
+        @if (metodo() === 'RETIRADA') {
+          <label>
+            Telefone de contato
+            <input type="tel" [(ngModel)]="telefone" name="telefone" required placeholder="(44) 99999-9999" />
+          </label>
+        } @else {
+          <label>
+            Endereço de entrega
+            <textarea [(ngModel)]="enderecoEntrega" name="enderecoEntrega" required
+              placeholder="Rua, número, bairro, cidade, UF, CEP"></textarea>
+          </label>
+        }
+
+        <h2>Pagamento</h2>
+        <label>
+          Forma de pagamento
+          <select [(ngModel)]="metodoPagamento" name="metodoPagamento">
+            <option value="PIX">Pix</option>
+            <option value="CARTAO">Cartão de crédito</option>
+          </select>
+        </label>
+
+        <p class="lgpd">
+          Seus dados são usados apenas para processar este pedido.
+          <a routerLink="/privacidade">Saiba mais em Política de Privacidade.</a>
+        </p>
+
+        @if (erro()) {
+          <p class="campo-erro">{{ erro() }}</p>
+        }
+
+        <button type="submit" class="btn btn-primary btn-full" [disabled]="!totais() || enviando()">
+          {{ enviando() ? 'Processando...' : 'Finalizar compra' }}
+        </button>
+      </form>
+
+      <aside class="resumo">
+        <h2>Resumo</h2>
+
+        @if (preferenciaErro(); as msg) {
+          <p class="aviso-erro">{{ msg }}</p>
+        } @else if (totais(); as totais) {
+          <div class="linha">
+            <span>Itens</span>
+            <span>{{ totais.subtotalItensCents | moeda }}</span>
+          </div>
+          @if (totais.totalEntradaPreVendaCents > 0) {
+            <div class="linha">
+              <span>Entrada pré-venda</span>
+              <span>{{ totais.totalEntradaPreVendaCents | moeda }}</span>
+            </div>
+          }
+          <div class="linha">
+            <span>Frete</span>
+            <span>{{ totais.shippingCostCents | moeda }}</span>
+          </div>
+          <div class="linha total">
+            <span>Total</span>
+            <span>{{ totais.totalPagoCents | moeda }}</span>
+          </div>
+
+          @if (totais.temPreVenda) {
+            <p class="aviso-pre-venda">
+              Seu pedido tem item(ns) de pré-venda — o envio ocorre somente quando todos os itens estiverem
+              disponíveis.
+            </p>
+          }
+        } @else {
+          <p class="aviso">Preencha seus dados para calcular o total.</p>
+        }
+      </aside>
+    </div>
+  </section>
+}

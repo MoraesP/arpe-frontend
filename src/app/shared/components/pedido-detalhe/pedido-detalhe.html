@@ -1,0 +1,59 @@
+<div class="pedido">
+  <header class="cabecalho">
+    <div>
+      <p class="rotulo">Pedido</p>
+      <p class="id">{{ order().id }}</p>
+    </div>
+    <span class="status">{{ statusLabel[order().status] }}</span>
+  </header>
+
+  <ul class="itens">
+    @for (item of order().itens; track item.productId) {
+      <li>
+        <div class="info">
+          <p class="nome">{{ item.productName }}</p>
+          <p class="qtd">
+            Qtd: {{ item.quantity }}
+            @if (item.isPresale) {
+              · Pré-venda ({{ item.presaleItemStatus === 'DISPONIVEL' ? 'disponível' : 'reservado' }})
+            }
+          </p>
+        </div>
+        <p class="preco">{{ item.unitPriceCents * item.quantity | moeda }}</p>
+      </li>
+    }
+  </ul>
+
+  <div class="secao">
+    <p class="rotulo">Envio</p>
+    @if (order().shippingMethod === 'RETIRADA') {
+      <p>Retirada local — contato: {{ order().pickupPhone }}</p>
+    } @else {
+      <p>Correios — {{ order().shippingAddress }}</p>
+      @if (order().trackingCode) {
+        <p class="rastreio">Código de rastreio: <strong>{{ order().trackingCode }}</strong></p>
+      }
+    }
+  </div>
+
+  <div class="totais">
+    <div class="linha">
+      <span>Itens</span>
+      <span>{{ order().subtotalItensCents | moeda }}</span>
+    </div>
+    @if (order().totalEntradaPreVendaCents > 0) {
+      <div class="linha">
+        <span>Entrada pré-venda</span>
+        <span>{{ order().totalEntradaPreVendaCents | moeda }}</span>
+      </div>
+    }
+    <div class="linha">
+      <span>Frete</span>
+      <span>{{ order().shippingCostCents | moeda }}</span>
+    </div>
+    <div class="linha total">
+      <span>Total pago</span>
+      <span>{{ order().totalPagoCents | moeda }}</span>
+    </div>
+  </div>
+</div>

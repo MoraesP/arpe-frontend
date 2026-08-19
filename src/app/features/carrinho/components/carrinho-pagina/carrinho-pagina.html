@@ -1,1 +1,60 @@
-<p>carrinho-pagina works!</p>
+<section class="pagina">
+  <h1>Seu carrinho</h1>
+
+  @if (carrinho.itens().length === 0) {
+    <div class="vazio">
+      <p>Seu carrinho está vazio.</p>
+      <a routerLink="/produtos" class="btn btn-primary">Ver catálogo</a>
+    </div>
+  } @else {
+    <div class="layout">
+      <ul class="itens">
+        @for (item of carrinho.itens(); track item.productId) {
+          <li class="item">
+            @if (item.photoUrl) {
+              <img [src]="item.photoUrl" [alt]="item.name" />
+            } @else {
+              <div class="foto-placeholder" aria-hidden="true"></div>
+            }
+
+            <div class="info">
+              <p class="nome">{{ item.name }}</p>
+              @if (item.isPresale) {
+                <p class="presale">Item de pré-venda — cobrado só a entrada</p>
+              }
+
+              <div class="stepper">
+                <button type="button" (click)="decrementar(item)" aria-label="Diminuir quantidade">−</button>
+                <span>{{ item.quantity }}</span>
+                <button type="button" (click)="incrementar(item)" aria-label="Aumentar quantidade">+</button>
+              </div>
+            </div>
+
+            <div class="preco-acao">
+              <p class="preco">{{ subtotalItem(item) | moeda }}</p>
+              <button type="button" class="remover" (click)="remover(item.productId)">Remover</button>
+            </div>
+          </li>
+        }
+      </ul>
+
+      <aside class="resumo">
+        <h2>Resumo</h2>
+        <div class="linha">
+          <span>Subtotal</span>
+          <span>{{ carrinho.totalCents() | moeda }}</span>
+        </div>
+        @if (carrinho.temPreVenda()) {
+          <p class="aviso-pre-venda">
+            Seu carrinho tem item(ns) de pré-venda — o envio ocorre somente quando todos os itens do pedido
+            estiverem disponíveis.
+          </p>
+        }
+        <p class="aviso-frete">O frete é calculado no checkout.</p>
+        <button type="button" class="btn btn-primary btn-full" (click)="irParaCheckout()">
+          Finalizar compra
+        </button>
+      </aside>
+    </div>
+  }
+</section>

@@ -1,0 +1,23 @@
+.pagina {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-xl);
+}
+
+h1 {
+  font-size: 28px;
+}
+
+.intro {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-xl);
+}
+
+.erro {
+  color: var(--color-error);
+  margin-top: var(--space-base);
+}
+
+.resultado {
+  margin-top: var(--space-xl);
+}

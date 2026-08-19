@@ -1,0 +1,114 @@
+.pagina {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--space-xl);
+}
+
+h1 {
+  font-size: 28px;
+}
+
+h2 {
+  font-size: 1rem;
+  margin: var(--space-lg) 0 0;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-xxl);
+  align-items: start;
+
+  @media (max-width: 800px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form {
+  max-width: none;
+}
+
+.lgpd {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+
+  a {
+    color: var(--color-interactive);
+  }
+}
+
+.resumo {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-lg);
+  position: sticky;
+  top: calc(64px + var(--space-lg));
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: var(--space-base);
+  }
+}
+
+.linha {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-xs);
+}
+
+.linha.total {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-text-brand);
+  margin-top: var(--space-sm);
+}
+
+.aviso,
+.aviso-erro {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.aviso-erro {
+  color: var(--color-error);
+}
+
+.aviso-pre-venda {
+  font-size: 0.8rem;
+  color: var(--color-interactive);
+  margin-top: var(--space-base);
+}
+
+// Confirmacao
+.confirmacao {
+  max-width: 560px;
+  text-align: center;
+  padding-top: var(--space-xxl);
+
+  p {
+    color: var(--color-text-muted);
+  }
+}
+
+.order-id {
+  font-family: monospace;
+  background: var(--color-offwhite);
+  padding: var(--space-base);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  color: var(--color-text-brand);
+}
+
+.acoes {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: center;
+  margin-top: var(--space-lg);
+}
