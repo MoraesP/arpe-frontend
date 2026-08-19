@@ -47,9 +47,13 @@
           </label>
         } @else {
           <label>
+            CEP de destino
+            <input type="text" [(ngModel)]="cepDestino" name="cepDestino" required placeholder="00000-000" />
+          </label>
+          <label>
             Endereço de entrega
             <textarea [(ngModel)]="enderecoEntrega" name="enderecoEntrega" required
-              placeholder="Rua, número, bairro, cidade, UF, CEP"></textarea>
+              placeholder="Rua, número, bairro, cidade, UF"></textarea>
           </label>
         }
 

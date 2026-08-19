@@ -15,6 +15,7 @@ export interface CompradorRequest {
 export interface EnvioRequest {
   metodo: ShippingMethod;
   enderecoEntrega: string | null;
+  cepDestino: string | null;
   telefoneContato: string | null;
 }
 

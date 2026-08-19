@@ -25,6 +25,7 @@ export class CheckoutPagina {
   protected readonly telefone = signal('');
   protected readonly metodo = signal<ShippingMethod>('RETIRADA');
   protected readonly enderecoEntrega = signal('');
+  protected readonly cepDestino = signal('');
   protected readonly metodoPagamento = signal<PaymentMethod>('PIX');
 
   protected readonly enviando = signal(false);
@@ -39,7 +40,7 @@ export class CheckoutPagina {
     if (this.metodo() === 'RETIRADA' && !this.telefone()) {
       return null;
     }
-    if (this.metodo() === 'CORREIOS' && !this.enderecoEntrega()) {
+    if (this.metodo() === 'CORREIOS' && (!this.enderecoEntrega() || !this.cepDestino())) {
       return null;
     }
 
@@ -49,6 +50,7 @@ export class CheckoutPagina {
       envio: {
         metodo: this.metodo(),
         enderecoEntrega: this.metodo() === 'CORREIOS' ? this.enderecoEntrega() : null,
+        cepDestino: this.metodo() === 'CORREIOS' ? this.cepDestino() : null,
         telefoneContato: this.metodo() === 'RETIRADA' ? this.telefone() : null,
       },
     };
