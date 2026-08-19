@@ -38,25 +38,42 @@ export const routes: Routes = [
     loadComponent: () => import('./features/admin/auth/components/login/login').then((m) => m.Login),
   },
   {
-    path: 'admin/dashboard',
+    path: 'admin',
     canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/admin/dashboard/components/dashboard/dashboard').then((m) => m.Dashboard),
-  },
-  {
-    path: 'admin/produtos',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/admin/produtos/components/lista/lista').then((m) => m.Lista),
-  },
-  {
-    path: 'admin/pre-venda',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/admin/pre-venda/components/lista/lista').then((m) => m.Lista),
-  },
-  {
-    path: 'admin/pedidos',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/admin/pedidos/components/lista/lista').then((m) => m.Lista),
+    loadComponent: () => import('./features/admin/admin-shell/admin-shell').then((m) => m.AdminShell),
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/admin/dashboard/components/dashboard/dashboard').then((m) => m.Dashboard),
+      },
+      {
+        path: 'produtos',
+        loadComponent: () => import('./features/admin/produtos/components/lista/lista').then((m) => m.Lista),
+      },
+      {
+        path: 'produtos/novo',
+        loadComponent: () => import('./features/admin/produtos/components/form/form').then((m) => m.Form),
+      },
+      {
+        path: 'produtos/:id/editar',
+        loadComponent: () => import('./features/admin/produtos/components/form/form').then((m) => m.Form),
+      },
+      {
+        path: 'pre-venda',
+        loadComponent: () => import('./features/admin/pre-venda/components/lista/lista').then((m) => m.Lista),
+      },
+      {
+        path: 'pedidos',
+        loadComponent: () => import('./features/admin/pedidos/components/lista/lista').then((m) => m.Lista),
+      },
+      {
+        path: 'pedidos/:id',
+        loadComponent: () =>
+          import('./features/admin/pedidos/components/detalhe/detalhe').then((m) => m.Detalhe),
+      },
+    ],
   },
   {
     path: '**',

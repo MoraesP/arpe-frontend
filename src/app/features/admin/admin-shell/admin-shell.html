@@ -1,0 +1,20 @@
+<div class="admin-layout">
+  <nav class="admin-nav">
+    <a routerLink="/" class="logo">
+      <img src="/logo-header.png" alt="ArPe" width="266" height="88" />
+    </a>
+
+    <div class="links">
+      <a routerLink="/admin/dashboard" routerLinkActive="ativo">Dashboard</a>
+      <a routerLink="/admin/produtos" routerLinkActive="ativo">Produtos</a>
+      <a routerLink="/admin/pre-venda" routerLinkActive="ativo">Pré-venda</a>
+      <a routerLink="/admin/pedidos" routerLinkActive="ativo">Pedidos</a>
+    </div>
+
+    <button type="button" class="sair" (click)="sair()">Sair</button>
+  </nav>
+
+  <main class="admin-conteudo">
+    <router-outlet />
+  </main>
+</div>

@@ -1,1 +1,40 @@
-<p>lista works!</p>
+<div class="cabecalho">
+  <h1>Pedidos</h1>
+  <select [(ngModel)]="statusFiltro" name="statusFiltro" class="filtro-status">
+    <option value="">Todos os status</option>
+    @for (status of statusOptions; track status) {
+      <option [value]="status">{{ statusLabel[status] }}</option>
+    }
+  </select>
+</div>
+
+@if (pedidos().length === 0) {
+  <p class="vazio">Nenhum pedido encontrado.</p>
+} @else {
+  <div class="tabela-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Status</th>
+          <th>Total</th>
+          <th>Data</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (pedido of pedidos(); track pedido.id) {
+          <tr>
+            <td>{{ pedido.customerName }} <span class="email">{{ pedido.customerEmail }}</span></td>
+            <td><span class="status">{{ statusLabel[pedido.status] }}</span></td>
+            <td>{{ pedido.totalPagoCents | moeda }}</td>
+            <td>{{ pedido.createdAt | date: 'dd/MM/yyyy' }}</td>
+            <td class="acoes">
+              <a [routerLink]="['/admin/pedidos', pedido.id]">Ver detalhe</a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

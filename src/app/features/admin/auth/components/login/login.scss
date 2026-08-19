@@ -1,0 +1,23 @@
+.pagina-login {
+  max-width: 360px;
+  margin: var(--space-xxl) auto;
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo {
+  margin-bottom: var(--space-xl);
+}
+
+.form {
+  width: 100%;
+  max-width: none;
+}
+
+h1 {
+  font-size: 1.25rem;
+  text-align: center;
+  margin-bottom: var(--space-base);
+}

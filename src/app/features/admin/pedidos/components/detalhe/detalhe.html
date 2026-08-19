@@ -1,0 +1,40 @@
+<div class="cabecalho">
+  <h1>Detalhe do pedido</h1>
+  <a routerLink="/admin/pedidos" class="btn btn-secondary">Voltar</a>
+</div>
+
+@if (carregando()) {
+  <p class="vazio">Carregando...</p>
+} @else if (order(); as order) {
+  <div class="layout">
+    <app-pedido-detalhe [order]="order" />
+
+    @if (podeAgir()) {
+      <aside class="acoes">
+        <h2>Ações</h2>
+
+        @if (mensagem()) {
+          <p class="mensagem">{{ mensagem() }}</p>
+        }
+
+        @if (order.shippingMethod === 'CORREIOS') {
+          <div class="bloco">
+            <label>
+              Código de rastreio
+              <input type="text" [(ngModel)]="trackingCode" name="trackingCode" placeholder="BR123456789BR" />
+            </label>
+            <button type="button" class="btn btn-primary btn-full" [disabled]="processando()" (click)="postar()">
+              Marcar como enviado
+            </button>
+          </div>
+        }
+
+        <button type="button" class="btn btn-secondary btn-full cancelar" [disabled]="processando()" (click)="cancelar()">
+          Cancelar pedido
+        </button>
+      </aside>
+    }
+  </div>
+} @else {
+  <p class="vazio">Pedido não encontrado.</p>
+}

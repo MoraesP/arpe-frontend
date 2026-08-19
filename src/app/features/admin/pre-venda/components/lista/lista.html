@@ -1,1 +1,50 @@
-<p>lista works!</p>
+<div class="cabecalho">
+  <h1>Pré-venda</h1>
+  <button
+    type="button"
+    class="btn btn-primary"
+    [disabled]="selecionados().size === 0 || liberando()"
+    (click)="liberarSelecionados()"
+  >
+    {{ liberando() ? 'Liberando...' : 'Liberar selecionados (' + selecionados().size + ')' }}
+  </button>
+</div>
+
+@if (mensagem()) {
+  <p class="mensagem">{{ mensagem() }}</p>
+}
+
+@if (carregando()) {
+  <p class="vazio">Carregando...</p>
+} @else if (produtos().length === 0) {
+  <p class="vazio">Nenhum produto de pré-venda aguardando liberação.</p>
+} @else {
+  <div class="tabela-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>Produto</th>
+          <th>Valor de entrada</th>
+          <th>Preço total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (produto of produtos(); track produto.id) {
+          <tr>
+            <td>
+              <input
+                type="checkbox"
+                [checked]="selecionados().has(produto.id)"
+                (change)="alternar(produto.id)"
+              />
+            </td>
+            <td>{{ produto.name }}</td>
+            <td>{{ produto.presaleDepositAmountCents | moeda }}</td>
+            <td>{{ produto.priceCents | moeda }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

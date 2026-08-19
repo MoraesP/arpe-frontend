@@ -144,6 +144,91 @@ button {
   margin: calc(var(--space-xs) * -1) 0 0;
 }
 
+// Tabelas do admin -- usaveis via .tabela-wrap > table em qualquer template.
+.tabela-wrap {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+
+  th,
+  td {
+    text-align: left;
+    padding: var(--space-md) var(--space-lg);
+    white-space: nowrap;
+  }
+
+  th {
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+    border-bottom: 1px solid var(--color-hairline);
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--color-hairline-soft);
+    transition: background-color var(--transition-base);
+
+    &:hover {
+      background: var(--color-offwhite);
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  td.acoes {
+    display: flex;
+    gap: var(--space-base);
+    align-items: center;
+
+    a {
+      color: var(--color-interactive);
+      font-weight: 600;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    button {
+      background: none;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      font-size: 0.9rem;
+      padding: 0;
+
+      &:hover {
+        color: var(--color-error);
+      }
+    }
+  }
+}
+
+.cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xl);
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+  }
+}
+
 .btn-icon-circle {
   display: inline-flex;
   align-items: center;

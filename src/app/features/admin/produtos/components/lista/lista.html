@@ -1,1 +1,42 @@
-<p>lista works!</p>
+<div class="cabecalho">
+  <h1>Produtos</h1>
+  <a routerLink="/admin/produtos/novo" class="btn btn-primary">Novo produto</a>
+</div>
+
+@if (erro()) {
+  <p class="erro">{{ erro() }}</p>
+} @else if (carregando()) {
+  <p class="vazio">Carregando...</p>
+} @else if (produtos().length === 0) {
+  <p class="vazio">Nenhum produto cadastrado ainda.</p>
+} @else {
+  <div class="tabela-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Preço</th>
+          <th>Estoque</th>
+          <th>Destaque</th>
+          <th>Pré-venda</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (produto of produtos(); track produto.id) {
+          <tr>
+            <td>{{ produto.name }}</td>
+            <td>{{ produto.priceCents | moeda }}</td>
+            <td>{{ produto.quantity }}</td>
+            <td>{{ produto.isFeatured ? 'Sim' : '—' }}</td>
+            <td>{{ produto.isPresale ? (produto.presaleStatus === 'DISPONIVEL' ? 'Disponível' : 'Reservado') : '—' }}</td>
+            <td class="acoes">
+              <a [routerLink]="['/admin/produtos', produto.id, 'editar']">Editar</a>
+              <button type="button" (click)="excluir(produto)">Excluir</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

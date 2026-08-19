@@ -1,0 +1,12 @@
+.vazio {
+  color: var(--color-text-muted);
+}
+
+.mensagem {
+  background: var(--color-gelo-soft);
+  color: var(--color-text-brand);
+  padding: var(--space-sm) var(--space-base);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-base);
+  font-size: 0.9rem;
+}

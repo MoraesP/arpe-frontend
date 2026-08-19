@@ -1,1 +1,25 @@
-<p>login works!</p>
+<section class="pagina-login">
+  <img src="/logo-header.png" alt="ArPe" width="200" height="66" class="logo" />
+
+  <form class="form" (ngSubmit)="entrar()">
+    <h1>Painel administrativo</h1>
+
+    <label>
+      E-mail
+      <input type="email" [(ngModel)]="email" name="email" required autocomplete="username" />
+    </label>
+
+    <label>
+      Senha
+      <input type="password" [(ngModel)]="senha" name="senha" required autocomplete="current-password" />
+    </label>
+
+    @if (erro()) {
+      <p class="campo-erro">E-mail ou senha inválidos.</p>
+    }
+
+    <button type="submit" class="btn btn-primary btn-full" [disabled]="carregando()">
+      {{ carregando() ? 'Entrando...' : 'Entrar' }}
+    </button>
+  </form>
+</section>

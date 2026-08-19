@@ -1,1 +1,55 @@
-<p>dashboard works!</p>
+<h1>Dashboard</h1>
+<p class="subtitulo">Métricas dos últimos 30 dias</p>
+
+@if (metricas(); as metricas) {
+  <div class="tiles">
+    <div class="tile">
+      <p class="rotulo">Total vendido</p>
+      <p class="valor">{{ metricas.totalVendidoCents | moeda }}</p>
+    </div>
+    <div class="tile">
+      <p class="rotulo">Pedidos no período</p>
+      <p class="valor">{{ totalPedidos(metricas.pedidosPorStatus) }}</p>
+    </div>
+    <div class="tile">
+      <p class="rotulo">Produto mais vendido</p>
+      <p class="valor destaque">{{ metricas.produtosMaisVendidos[0]?.productName ?? '—' }}</p>
+    </div>
+  </div>
+
+  <div class="paineis">
+    <div class="painel">
+      <h2>Pedidos por status</h2>
+      @if (statusEntries(metricas.pedidosPorStatus).length === 0) {
+        <p class="vazio">Nenhum pedido no período.</p>
+      } @else {
+        <ul class="lista-status">
+          @for (entry of statusEntries(metricas.pedidosPorStatus); track entry[0]) {
+            <li>
+              <span>{{ statusLabel[entry[0]] }}</span>
+              <span class="qtd">{{ entry[1] }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <div class="painel">
+      <h2>Produtos mais vendidos</h2>
+      @if (metricas.produtosMaisVendidos.length === 0) {
+        <p class="vazio">Nenhuma venda no período.</p>
+      } @else {
+        <ul class="lista-produtos">
+          @for (produto of metricas.produtosMaisVendidos; track produto.productId) {
+            <li>
+              <span>{{ produto.productName }}</span>
+              <span class="qtd">{{ produto.quantidadeVendida }} un.</span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+} @else {
+  <p class="vazio">Carregando métricas...</p>
+}

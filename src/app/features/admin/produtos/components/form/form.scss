@@ -1,0 +1,35 @@
+h1 {
+  font-size: 24px;
+  margin-bottom: var(--space-xl);
+}
+
+.form {
+  max-width: 480px;
+}
+
+.grid-dimensoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-base);
+}
+
+.checkbox {
+  flex-direction: row !important;
+  align-items: center;
+  gap: var(--space-sm) !important;
+
+  input {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+}
+
+.acoes-form {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.vazio {
+  color: var(--color-text-muted);
+}
