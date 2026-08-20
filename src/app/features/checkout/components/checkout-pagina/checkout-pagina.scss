@@ -32,6 +32,18 @@ h2 {
   max-width: none;
 }
 
+// Painel de pagamento (passo 2) -- so precisa do max-width/espacamento do
+// .form global, nao dos estilos de input/select/textarea (o Payment Brick do
+// Mercado Pago renderiza os proprios inputs/radios dentro do container, e a
+// regra global de .form input/select/textarea { height: 48px; ... } vazava
+// pra eles, achatando os radio buttons de cartao/Pix)
+.pagamento-painel {
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
 .lgpd {
   font-size: 0.8rem;
   color: var(--color-text-muted);

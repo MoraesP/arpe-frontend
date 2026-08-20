@@ -100,6 +100,73 @@ describe('CheckoutPagina', () => {
     expect(checkoutService.preferencia).not.toHaveBeenCalled();
   }));
 
+  it('não consulta a preferência sem estado/cidade quando o método é Correios', fakeAsync(() => {
+    const fixture = criarFixture();
+    carrinho.adicionar(criarItem());
+    fixture.componentInstance['nome'].set('Fulano');
+    fixture.componentInstance['email'].set('fulano@teste.com');
+    fixture.componentInstance['metodo'].set('CORREIOS');
+    fixture.componentInstance['cepDestino'].set('87010-000');
+    fixture.componentInstance['logradouro'].set('Rua das Flores');
+    fixture.componentInstance['numero'].set('123');
+    fixture.detectChanges();
+    tick(400);
+
+    expect(checkoutService.preferencia).not.toHaveBeenCalled();
+  }));
+
+  it('onCepChange() aplica a máscara xxxxx-xxx conforme o usuário digita', () => {
+    const fixture = criarFixture();
+
+    fixture.componentInstance.onCepChange('87010000');
+    expect(fixture.componentInstance['cepDestino']()).toBe('87010-000');
+
+    fixture.componentInstance.onCepChange('8701');
+    expect(fixture.componentInstance['cepDestino']()).toBe('8701');
+
+    fixture.componentInstance.onCepChange('87010000999');
+    expect(fixture.componentInstance['cepDestino']()).toBe('87010-000');
+  });
+
+  it('consulta a preferência (debounced) e compõe o endereço a partir dos campos separados quando o método é Correios', fakeAsync(() => {
+    const fixture = criarFixture();
+    carrinho.adicionar(criarItem());
+    fixture.componentInstance['nome'].set('Fulano');
+    fixture.componentInstance['email'].set('fulano@teste.com');
+    fixture.componentInstance['metodo'].set('CORREIOS');
+    fixture.componentInstance['cepDestino'].set('87010-000');
+    fixture.componentInstance['logradouro'].set('Rua das Flores');
+    fixture.componentInstance['numero'].set('123');
+    fixture.componentInstance['complemento'].set('Apto 45');
+    fixture.componentInstance['cidade'].set('Maringá');
+    fixture.componentInstance['estado'].set('PR');
+    fixture.detectChanges();
+    tick(400);
+
+    expect(checkoutService.preferencia).toHaveBeenCalled();
+    const requestEnviado = checkoutService.preferencia.calls.mostRecent().args[0];
+    expect(requestEnviado.envio.cepDestino).toBe('87010-000');
+    expect(requestEnviado.envio.enderecoEntrega).toBe('Rua das Flores, 123, Apto 45 - Maringá/PR');
+  }));
+
+  it('compõe o endereço sem o complemento quando ele não é preenchido (campo opcional)', fakeAsync(() => {
+    const fixture = criarFixture();
+    carrinho.adicionar(criarItem());
+    fixture.componentInstance['nome'].set('Fulano');
+    fixture.componentInstance['email'].set('fulano@teste.com');
+    fixture.componentInstance['metodo'].set('CORREIOS');
+    fixture.componentInstance['cepDestino'].set('87010-000');
+    fixture.componentInstance['logradouro'].set('Rua das Flores');
+    fixture.componentInstance['numero'].set('123');
+    fixture.componentInstance['cidade'].set('Maringá');
+    fixture.componentInstance['estado'].set('PR');
+    fixture.detectChanges();
+    tick(400);
+
+    const requestEnviado = checkoutService.preferencia.calls.mostRecent().args[0];
+    expect(requestEnviado.envio.enderecoEntrega).toBe('Rua das Flores, 123 - Maringá/PR');
+  }));
+
   it('consulta a preferência (debounced) quando os dados obrigatórios da retirada estão completos', fakeAsync(() => {
     const fixture = criarFixture();
     carrinho.adicionar(criarItem());

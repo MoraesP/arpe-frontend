@@ -9,7 +9,12 @@ import { environment } from '../../../../../environments/environment';
 import { Carrinho } from '../../../../core/services/carrinho';
 import { MoedaPipe } from '../../../../shared/pipes/moeda-pipe';
 import { CheckoutService } from '../../services/checkout-service';
-import { CheckoutConfirmarRequest, CheckoutPreferenciaRequest, PaymentMethod, ShippingMethod } from '../../models/checkout';
+import {
+  CheckoutConfirmarRequest,
+  CheckoutPreferenciaRequest,
+  PaymentMethod,
+  ShippingMethod,
+} from '../../models/checkout';
 
 declare const MercadoPago: any;
 
@@ -17,6 +22,36 @@ type Passo = 'dados' | 'pagamento';
 
 const SDK_URL = 'https://sdk.mercadopago.com/js/v2';
 const BRICK_CONTAINER_ID = 'paymentBrick_container';
+
+const ESTADOS_BRASIL: { sigla: string; nome: string }[] = [
+  { sigla: 'AC', nome: 'Acre' },
+  { sigla: 'AL', nome: 'Alagoas' },
+  { sigla: 'AP', nome: 'Amapá' },
+  { sigla: 'AM', nome: 'Amazonas' },
+  { sigla: 'BA', nome: 'Bahia' },
+  { sigla: 'CE', nome: 'Ceará' },
+  { sigla: 'DF', nome: 'Distrito Federal' },
+  { sigla: 'ES', nome: 'Espírito Santo' },
+  { sigla: 'GO', nome: 'Goiás' },
+  { sigla: 'MA', nome: 'Maranhão' },
+  { sigla: 'MT', nome: 'Mato Grosso' },
+  { sigla: 'MS', nome: 'Mato Grosso do Sul' },
+  { sigla: 'MG', nome: 'Minas Gerais' },
+  { sigla: 'PA', nome: 'Pará' },
+  { sigla: 'PB', nome: 'Paraíba' },
+  { sigla: 'PR', nome: 'Paraná' },
+  { sigla: 'PE', nome: 'Pernambuco' },
+  { sigla: 'PI', nome: 'Piauí' },
+  { sigla: 'RJ', nome: 'Rio de Janeiro' },
+  { sigla: 'RN', nome: 'Rio Grande do Norte' },
+  { sigla: 'RS', nome: 'Rio Grande do Sul' },
+  { sigla: 'RO', nome: 'Rondônia' },
+  { sigla: 'RR', nome: 'Roraima' },
+  { sigla: 'SC', nome: 'Santa Catarina' },
+  { sigla: 'SP', nome: 'São Paulo' },
+  { sigla: 'SE', nome: 'Sergipe' },
+  { sigla: 'TO', nome: 'Tocantins' },
+];
 
 @Component({
   selector: 'app-checkout-pagina',
@@ -36,8 +71,14 @@ export class CheckoutPagina {
   protected readonly email = signal('');
   protected readonly telefone = signal('');
   protected readonly metodo = signal<ShippingMethod>('RETIRADA');
-  protected readonly enderecoEntrega = signal('');
   protected readonly cepDestino = signal('');
+  protected readonly logradouro = signal('');
+  protected readonly numero = signal('');
+  protected readonly complemento = signal('');
+  protected readonly estado = signal('');
+  protected readonly cidade = signal('');
+
+  protected readonly estados = ESTADOS_BRASIL;
 
   protected readonly enviando = signal(false);
   protected readonly erro = signal<string | null>(null);
@@ -59,7 +100,14 @@ export class CheckoutPagina {
     if (this.metodo() === 'RETIRADA' && !this.telefone()) {
       return null;
     }
-    if (this.metodo() === 'CORREIOS' && (!this.enderecoEntrega() || !this.cepDestino())) {
+    if (
+      this.metodo() === 'CORREIOS' &&
+      (!this.cepDestino() ||
+        !this.logradouro() ||
+        !this.numero() ||
+        !this.estado() ||
+        !this.cidade())
+    ) {
       return null;
     }
 
@@ -68,7 +116,7 @@ export class CheckoutPagina {
       comprador: { nome: this.nome(), email: this.email(), telefone: this.telefone() || null },
       envio: {
         metodo: this.metodo(),
-        enderecoEntrega: this.metodo() === 'CORREIOS' ? this.enderecoEntrega() : null,
+        enderecoEntrega: this.metodo() === 'CORREIOS' ? this.montarEnderecoEntrega() : null,
         cepDestino: this.metodo() === 'CORREIOS' ? this.cepDestino() : null,
         telefoneContato: this.metodo() === 'RETIRADA' ? this.telefone() : null,
       },
@@ -94,6 +142,17 @@ export class CheckoutPagina {
   );
 
   protected readonly totais = toSignal(this.preferencia, { initialValue: null });
+
+  onCepChange(valor: string): void {
+    const digitos = valor.replace(/\D/g, '').slice(0, 8);
+    const formatado = digitos.length > 5 ? `${digitos.slice(0, 5)}-${digitos.slice(5)}` : digitos;
+    this.cepDestino.set(formatado);
+  }
+
+  private montarEnderecoEntrega(): string {
+    const complemento = this.complemento() ? `, ${this.complemento()}` : '';
+    return `${this.logradouro()}, ${this.numero()}${complemento} - ${this.cidade()}/${this.estado()}`;
+  }
 
   irParaPagamento(): void {
     if (!this.totais()) {
@@ -161,11 +220,15 @@ export class CheckoutPagina {
             // cartao ainda incompleto) -- so trata como falha real o resto
             this.brickCarregando.set(false);
             if (error?.type !== 'non_critical') {
-              this.brickErro.set('Não foi possível carregar o formulário de pagamento. Tente novamente.');
+              this.brickErro.set(
+                'Não foi possível carregar o formulário de pagamento. Tente novamente.',
+              );
             }
           },
           onSubmit: ({ formData }: any) =>
-            new Promise<void>((resolve, reject) => this.confirmarComBrick(formData, resolve, reject)),
+            new Promise<void>((resolve, reject) =>
+              this.confirmarComBrick(formData, resolve, reject),
+            ),
         },
       });
     } catch (err) {

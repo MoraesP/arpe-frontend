@@ -15,16 +15,23 @@
         </button>
       </div>
 
-      <p class="aviso">Assim que o pagamento for confirmado, você recebe um e-mail. Guarde o ID do pedido abaixo.</p>
+      <p class="aviso">
+        Assim que o pagamento for confirmado, você recebe um e-mail. Guarde o ID do pedido abaixo.
+      </p>
     } @else {
       <h1>Pedido confirmado!</h1>
-      <p>Seu pedido foi criado com sucesso. Guarde o ID abaixo — você vai precisar dele, junto com o e-mail usado
-        na compra, para consultar o status (você recebe uma chave por e-mail na hora de consultar).</p>
+      <p>
+        Seu pedido foi criado com sucesso. Guarde o ID abaixo — você vai precisar dele, junto com o
+        e-mail usado na compra, para consultar o status (você recebe uma chave por e-mail na hora de
+        consultar).
+      </p>
     }
 
     <p class="order-id">{{ orderId }}</p>
     <div class="acoes">
-      <button type="button" class="btn btn-primary" (click)="irParaConsulta()">Consultar meu pedido</button>
+      <button type="button" class="btn btn-primary" (click)="irParaConsulta()">
+        Consultar meu pedido
+      </button>
       <a routerLink="/produtos" class="btn btn-secondary">Continuar comprando</a>
     </div>
   </section>
@@ -63,17 +70,63 @@
           @if (metodo() === 'RETIRADA') {
             <label>
               Telefone de contato
-              <input type="tel" [(ngModel)]="telefone" name="telefone" required placeholder="(44) 99999-9999" />
+              <input
+                type="tel"
+                [(ngModel)]="telefone"
+                name="telefone"
+                required
+                placeholder="(44) 99999-9999"
+              />
             </label>
           } @else {
             <label>
               CEP de destino
-              <input type="text" [(ngModel)]="cepDestino" name="cepDestino" required placeholder="00000-000" />
+              <input
+                type="text"
+                [ngModel]="cepDestino()"
+                (ngModelChange)="onCepChange($event)"
+                name="cepDestino"
+                required
+                placeholder="00000-000"
+                maxlength="9"
+                inputmode="numeric"
+              />
             </label>
             <label>
-              Endereço de entrega
-              <textarea [(ngModel)]="enderecoEntrega" name="enderecoEntrega" required
-                placeholder="Rua, número, bairro, cidade, UF"></textarea>
+              Endereço
+              <input
+                type="text"
+                [(ngModel)]="logradouro"
+                name="logradouro"
+                required
+                placeholder="Rua, avenida..."
+              />
+            </label>
+            <label>
+              Número
+              <input type="text" [(ngModel)]="numero" name="numero" required />
+            </label>
+            <label>
+              Complemento (opcional)
+              <input
+                type="text"
+                [(ngModel)]="complemento"
+                name="complemento"
+                placeholder="Apto, bloco, referência..."
+              />
+            </label>
+            <label>
+              Cidade
+              <input type="text" [(ngModel)]="cidade" name="cidade" required />
+            </label>
+            <label>
+              Estado
+              <select [(ngModel)]="estado" name="estado" required>
+                <option value="" disabled>Selecione</option>
+                @for (uf of estados; track uf.sigla) {
+                  <option [value]="uf.sigla">{{ uf.nome }}</option>
+                }
+              </select>
             </label>
           }
 
@@ -87,9 +140,11 @@
           </button>
         </form>
       } @else {
-        <div class="form">
+        <div class="pagamento-painel">
           <h2>Pagamento</h2>
-          <button type="button" class="btn-link" (click)="voltarParaDados()">← Voltar e editar dados</button>
+          <button type="button" class="btn-link" (click)="voltarParaDados()">
+            ← Voltar e editar dados
+          </button>
 
           @if (brickErro(); as msg) {
             <p class="campo-erro">{{ msg }}</p>
@@ -132,8 +187,8 @@
 
           @if (totais.temPreVenda) {
             <p class="aviso-pre-venda">
-              Seu pedido tem item(ns) de pré-venda — o envio ocorre somente quando todos os itens estiverem
-              disponíveis.
+              Seu pedido tem item(ns) de pré-venda — o envio ocorre somente quando todos os itens
+              estiverem disponíveis.
             </p>
           }
         } @else {
