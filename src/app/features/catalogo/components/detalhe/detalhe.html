@@ -14,7 +14,8 @@
       @if (produto.isPresale && produto.presaleDepositAmountCents !== null) {
         <app-badge-pre-venda [presaleDepositAmountCents]="produto.presaleDepositAmountCents!" />
         <p class="aviso-pre-venda">
-          Item de pré-venda — o envio ocorre somente quando todos os itens do pedido estiverem disponíveis.
+          Item de pré-venda — o envio ocorre somente quando todos os itens do pedido estiverem
+          disponíveis.
         </p>
       }
 
@@ -33,12 +34,32 @@
       }
 
       @if (produto.quantity > 0) {
+        @if (avisoEstoque(); as aviso) {
+          <p class="aviso-estoque" [class]="aviso.nivel">
+            @if (aviso.nivel === 'critico') {
+              <span aria-hidden="true">🔥</span>
+            }
+            {{ aviso.texto }}
+          </p>
+        }
+
         <div class="acao">
-          <input type="number" min="1" [max]="produto.quantity" [(ngModel)]="quantidade" />
+          <input
+            #quantidadeInput
+            type="number"
+            min="1"
+            [max]="produto.quantity"
+            [ngModel]="quantidade()"
+            (ngModelChange)="atualizarQuantidade($event, quantidadeInput)"
+          />
           <button type="button" class="btn btn-primary" (click)="adicionarAoCarrinho()">
             Adicionar ao carrinho
           </button>
         </div>
+
+        @if (erroQuantidade(); as msg) {
+          <p class="campo-erro">{{ msg }}</p>
+        }
 
         @if (adicionado()) {
           <p class="confirmacao" role="status">Adicionado ao carrinho.</p>

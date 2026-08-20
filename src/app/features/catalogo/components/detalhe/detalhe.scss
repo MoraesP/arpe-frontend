@@ -65,6 +65,23 @@ h1 {
   color: var(--color-interactive);
 }
 
+.aviso-estoque {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xxs);
+
+  &.critico {
+    color: var(--color-error);
+  }
+
+  &.baixo {
+    color: var(--color-warning);
+  }
+}
+
 .acao {
   display: flex;
   gap: var(--space-sm);
