@@ -180,6 +180,24 @@ export class CheckoutPagina {
 
   protected readonly totais = toSignal(this.preferencia, { initialValue: null });
 
+  /**
+   * Calculado no frontend (mesma regra do backend, ver CheckoutService) pra
+   * mostrar os dois totais lado a lado no resumo -- o Payment Brick nao tem
+   * callback pra avisar qual metodo o comprador selecionou antes de
+   * submeter, entao nao da pra reagir a essa escolha; em vez disso, os dois
+   * valores ja ficam visiveis antes de escolher.
+   */
+  protected readonly totalComDescontoPixCents = computed<number | null>(() => {
+    const totais = this.totais();
+    const percentual = this.pixDiscountPercentage();
+    if (!totais || percentual === null) {
+      return null;
+    }
+    const base = totais.subtotalItensCents + totais.totalEntradaPreVendaCents;
+    const descontoCents = Math.round((base * percentual) / 100);
+    return totais.totalPagoCents - descontoCents;
+  });
+
   onCepChange(valor: string): void {
     const digitos = valor.replace(/\D/g, '').slice(0, 8);
     const formatado = digitos.length > 5 ? `${digitos.slice(0, 5)}-${digitos.slice(5)}` : digitos;

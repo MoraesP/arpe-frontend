@@ -1,6 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { PLATFORM_ID } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Router, provideRouter } from '@angular/router';
+import { environment } from '../../../../../environments/environment';
 import { CarrinhoPagina } from './carrinho-pagina';
 import { Carrinho } from '../../../../core/services/carrinho';
 import { CartItem } from '../../models/cart-item';
@@ -22,15 +25,22 @@ function criarItem(overrides: Partial<CartItem> = {}): CartItem {
 describe('CarrinhoPagina', () => {
   let carrinho: Carrinho;
   let router: Router;
+  let httpMock: HttpTestingController;
 
   beforeEach(() => {
     localStorage.clear();
     TestBed.configureTestingModule({
       imports: [CarrinhoPagina],
-      providers: [provideRouter([]), { provide: PLATFORM_ID, useValue: 'browser' }],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: PLATFORM_ID, useValue: 'browser' },
+      ],
     });
     carrinho = TestBed.inject(Carrinho);
     router = TestBed.inject(Router);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
   function criarFixture() {
@@ -89,6 +99,22 @@ describe('CarrinhoPagina', () => {
 
     const botoes = fixture.nativeElement.querySelectorAll('.stepper button');
     expect(botoes[0].disabled).toBe(false);
+    expect(botoes[1].disabled).toBe(true);
+  });
+
+  it('botão "+" usa o estoque atual buscado do backend, não o stockQuantity congelado no item', () => {
+    const fixture = criarFixture();
+    // stockQuantity=10 ficou desatualizado (congelado desde quando foi adicionado) --
+    // o estoque real caiu pra 2, então o backend é quem manda
+    carrinho.adicionar(criarItem({ quantity: 2, stockQuantity: 10 }));
+    fixture.detectChanges();
+
+    httpMock
+      .expectOne(`${environment.apiBaseUrl}/produtos/p1`)
+      .flush({ id: 'p1', quantity: 2 });
+    fixture.detectChanges();
+
+    const botoes = fixture.nativeElement.querySelectorAll('.stepper button');
     expect(botoes[1].disabled).toBe(true);
   });
 

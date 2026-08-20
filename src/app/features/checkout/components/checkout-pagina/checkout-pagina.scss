@@ -82,6 +82,11 @@ h2 {
   margin-top: var(--space-sm);
 }
 
+.linha.total.desconto-pix {
+  color: var(--color-success, #2e7d32);
+  margin-top: 0;
+}
+
 .tag-desconto-pix {
   display: inline-block;
   margin-top: var(--space-sm);

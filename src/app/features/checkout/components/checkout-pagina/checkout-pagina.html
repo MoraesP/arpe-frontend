@@ -206,13 +206,21 @@
             <span>Frete</span>
             <span>{{ totais.shippingCostCents | moeda }}</span>
           </div>
-          <div class="linha total">
-            <span>Total</span>
-            <span>{{ totais.totalPagoCents | moeda }}</span>
-          </div>
-
-          @if (pixDiscountPercentage(); as percentual) {
-            <p class="tag-desconto-pix">🎉 {{ percentual }}% de desconto pagando no Pix</p>
+          @if (totalComDescontoPixCents(); as totalPix) {
+            <div class="linha">
+              <span>Total no cartão</span>
+              <span>{{ totais.totalPagoCents | moeda }}</span>
+            </div>
+            <div class="linha total desconto-pix">
+              <span>Total no Pix 🎉</span>
+              <span>{{ totalPix | moeda }}</span>
+            </div>
+            <p class="tag-desconto-pix">{{ pixDiscountPercentage() }}% de desconto pagando no Pix</p>
+          } @else {
+            <div class="linha total">
+              <span>Total</span>
+              <span>{{ totais.totalPagoCents | moeda }}</span>
+            </div>
           }
 
           @if (totais.temPreVenda) {
