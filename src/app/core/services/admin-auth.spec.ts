@@ -4,6 +4,14 @@ import { AdminAuth } from './admin-auth';
 
 const TOKEN_KEY = 'arpe-admin-token';
 
+/** Monta um JWT sintático válido (header.payload.assinatura) com o `exp` desejado -- assinatura não é validada no frontend. */
+function criarJwt(expSegundos: number | undefined): string {
+  const base64url = (obj: object) =>
+    btoa(JSON.stringify(obj)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const payload = expSegundos === undefined ? {} : { exp: expSegundos };
+  return `${base64url({ alg: 'HS256' })}.${base64url(payload)}.assinatura-fake`;
+}
+
 describe('AdminAuth', () => {
   beforeEach(() => {
     localStorage.removeItem(TOKEN_KEY);
@@ -39,6 +47,28 @@ describe('AdminAuth', () => {
     const adminAuth = criarServico();
     expect(adminAuth.isAuthenticated()).toBe(false);
     adminAuth.setToken('jwt-fake');
+    expect(adminAuth.isAuthenticated()).toBe(true);
+  });
+
+  it('isAuthenticated() é true para um JWT com exp no futuro', () => {
+    const adminAuth = criarServico();
+    const futuro = Math.floor(Date.now() / 1000) + 3600;
+    adminAuth.setToken(criarJwt(futuro));
+    expect(adminAuth.isAuthenticated()).toBe(true);
+  });
+
+  it('isAuthenticated() é false e limpa o token quando o JWT já expirou', () => {
+    const adminAuth = criarServico();
+    const passado = Math.floor(Date.now() / 1000) - 3600;
+    adminAuth.setToken(criarJwt(passado));
+
+    expect(adminAuth.isAuthenticated()).toBe(false);
+    expect(adminAuth.getToken()).toBeNull();
+  });
+
+  it('isAuthenticated() é true quando o token não tem claim exp (não dá pra saber se expirou)', () => {
+    const adminAuth = criarServico();
+    adminAuth.setToken(criarJwt(undefined));
     expect(adminAuth.isAuthenticated()).toBe(true);
   });
 

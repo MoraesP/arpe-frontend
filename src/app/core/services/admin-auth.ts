@@ -32,7 +32,39 @@ export class AdminAuth {
     localStorage.removeItem(TOKEN_KEY);
   }
 
+  /**
+   * Checa presença E validade (claim `exp`) do token -- um JWT expirado
+   * ainda "presente" no localStorage não deve deixar o guard liberar a
+   * rota admin (achado real: token expirado deixava o painel renderizar
+   * vazio, sem redirecionar pro login, porque só a presença era checada).
+   * Isso é só uma camada de UX: a validação de verdade (assinatura,
+   * expiração) é sempre feita pelo backend, ver JwtService.
+   */
   isAuthenticated(): boolean {
-    return this.getToken() !== null;
+    const token = this.getToken();
+    if (!token) {
+      return false;
+    }
+    if (this.estaExpirado(token)) {
+      this.clearToken();
+      return false;
+    }
+    return true;
+  }
+
+  private estaExpirado(token: string): boolean {
+    const exp = this.extrairExpiracao(token);
+    return exp !== null && exp * 1000 <= Date.now();
+  }
+
+  /** Decodifica o payload do JWT sem validar assinatura -- só leitura local do claim `exp`. */
+  private extrairExpiracao(token: string): number | null {
+    try {
+      const payloadBase64 = token.split('.')[1];
+      const payload = JSON.parse(atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/')));
+      return typeof payload.exp === 'number' ? payload.exp : null;
+    } catch {
+      return null;
+    }
   }
 }
