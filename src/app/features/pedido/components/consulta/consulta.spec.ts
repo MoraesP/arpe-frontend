@@ -21,6 +21,7 @@ function criarOrder(overrides: Partial<Order> = {}): Order {
     trackingCode: null,
     itens: [],
     createdAt: new Date().toISOString(),
+    mercadoPagoPaymentIds: [],
     ...overrides,
   };
 }

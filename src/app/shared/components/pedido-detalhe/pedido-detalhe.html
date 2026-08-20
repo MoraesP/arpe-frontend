@@ -3,9 +3,28 @@
     <div>
       <p class="rotulo">Pedido</p>
       <p class="id">{{ order().id }}</p>
+      <p class="data">{{ order().createdAt | date: "dd/MM/yyyy 'às' HH:mm" }}</p>
     </div>
     <span class="status">{{ statusLabel[order().status] }}</span>
   </header>
+
+  <div class="secao">
+    <p class="rotulo">Comprador</p>
+    <p>{{ order().customerName }}</p>
+    <p>{{ order().customerEmail }}</p>
+    @if (order().customerDocument) {
+      <p>{{ order().customerDocument }}</p>
+    }
+  </div>
+
+  @if (order().mercadoPagoPaymentIds.length > 0) {
+    <div class="secao">
+      <p class="rotulo">Pagamento (Mercado Pago)</p>
+      @for (paymentId of order().mercadoPagoPaymentIds; track paymentId) {
+        <p>{{ paymentId }}</p>
+      }
+    </div>
+  }
 
   <ul class="itens">
     @for (item of order().itens; track item.productId) {

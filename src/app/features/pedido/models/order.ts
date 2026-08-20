@@ -41,6 +41,7 @@ export interface Order {
   trackingCode: string | null;
   itens: OrderItem[];
   createdAt: string;
+  mercadoPagoPaymentIds: string[];
 }
 
 export interface OrderSummary {

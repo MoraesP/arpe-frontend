@@ -28,7 +28,7 @@
             <td>{{ pedido.customerName }} <span class="email">{{ pedido.customerEmail }}</span></td>
             <td><span class="status">{{ statusLabel[pedido.status] }}</span></td>
             <td>{{ pedido.totalPagoCents | moeda }}</td>
-            <td>{{ pedido.createdAt | date: 'dd/MM/yyyy' }}</td>
+            <td>{{ pedido.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
             <td class="acoes">
               <a [routerLink]="['/admin/pedidos', pedido.id]">Ver detalhe</a>
             </td>
