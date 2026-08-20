@@ -42,7 +42,7 @@
             "server": "src/main.server.ts",
             "outputMode": "server",
             "security": {
-              "allowedHosts": ["localhost", "localhost:4000", "localhost:4200", "arpe-frontend.vercel.app"]
+              "allowedHosts": ["localhost", "localhost:4000", "localhost:4200", "arpe-frontend.vercel.app", "arpecolecionaveis.com.br", "www.arpecolecionaveis.com.br"]
             },
             "ssr": {
               "entry": "src/server.ts"
