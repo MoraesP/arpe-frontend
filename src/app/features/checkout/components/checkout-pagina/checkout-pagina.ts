@@ -19,7 +19,12 @@ import {
   ShippingMethod,
 } from '../../models/checkout';
 
-const STATUS_PAGO = new Set(['PAGO', 'PAGO_COMPLETO']);
+// AGUARDANDO_LIBERACAO_PRE_VENDA e o status final de verdade pra pedido de
+// pre-venda apos a entrada ser confirmada via webhook (PaymentWebhookService
+// nunca poe PAGO nesse caso -- so PAGO_COMPLETO depois do saldo, ver
+// docs/specs/pagamento.md). Sem isso aqui, a tela de pre-venda ficava presa
+// na tela de pagamento pra sempre (achado real).
+const STATUS_PAGO = new Set(['PAGO', 'PAGO_COMPLETO', 'AGUARDANDO_LIBERACAO_PRE_VENDA']);
 const POLLING_INTERVALO_MS = 5000;
 const POLLING_TIMEOUT_CARTAO_MS = 120000;
 
@@ -102,6 +107,7 @@ export class CheckoutPagina {
   protected readonly pixExpirado = signal(false);
   protected readonly segundosRestantes = signal(0);
   protected readonly pagamentoConfirmado = signal(false);
+  protected readonly pedidoTinhaPreVenda = signal(false);
 
   protected readonly brickCarregando = signal(false);
   protected readonly brickErro = signal<string | null>(null);
@@ -339,6 +345,7 @@ export class CheckoutPagina {
 
     this.checkoutService.confirmar(body).subscribe({
       next: (response) => {
+        this.pedidoTinhaPreVenda.set(this.carrinho.temPreVenda());
         this.carrinho.limpar();
         this.pixQrCode.set(response.pixQrCode);
         this.pixQrCodeBase64.set(response.pixQrCodeBase64);

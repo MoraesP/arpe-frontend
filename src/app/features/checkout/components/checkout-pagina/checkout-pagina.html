@@ -2,7 +2,14 @@
   <section class="pagina confirmacao">
     @if (pagamentoConfirmado()) {
       <h1>Pagamento confirmado!</h1>
-      <p>Seu pedido foi pago com sucesso. Você também recebe a confirmação por e-mail.</p>
+      @if (pedidoTinhaPreVenda()) {
+        <p>
+          A entrada da pré-venda foi paga com sucesso. Assim que o(s) item(ns) estiver(em)
+          disponível(is), você recebe um e-mail com o link para pagar o saldo restante.
+        </p>
+      } @else {
+        <p>Seu pedido foi pago com sucesso. Você também recebe a confirmação por e-mail.</p>
+      }
     } @else if (pixQrCode(); as codigo) {
       <h1>Falta pagar com Pix</h1>
       @if (!pixExpirado()) {

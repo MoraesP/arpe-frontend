@@ -293,8 +293,8 @@ describe('CheckoutPagina', () => {
       };
     });
 
-    function irParaPagamento(fixture: ReturnType<typeof criarFixture>) {
-      carrinho.adicionar(criarItem());
+    function irParaPagamento(fixture: ReturnType<typeof criarFixture>, item: CartItem = criarItem()) {
+      carrinho.adicionar(item);
       preencherDadosRetirada(fixture);
       fixture.detectChanges();
       tick(400);
@@ -398,6 +398,38 @@ describe('CheckoutPagina', () => {
       expect(fixture.componentInstance['pagamentoConfirmado']()).toBe(false);
 
       tick(5000); // 2a checagem -- pago
+      expect(fixture.componentInstance['pagamentoConfirmado']()).toBe(true);
+
+      discardPeriodicTasks();
+    }));
+
+    it('marca pagamentoConfirmado() quando o status vira AGUARDANDO_LIBERACAO_PRE_VENDA (webhook nunca põe PAGO em pedido de pré-venda)', fakeAsync(() => {
+      const respostaConfirmacao: CheckoutConfirmarResponse = {
+        orderId: 'order-1',
+        status: 'AGUARDANDO_PAGAMENTO',
+        totalPagoCents: 5000,
+        pixQrCode: 'copia-e-cola-fake',
+        pixQrCodeBase64: 'base64-fake',
+        pixExpiraEm: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      };
+      checkoutService.confirmar.and.returnValue(of(respostaConfirmacao));
+      pedidoService.statusPagamento.and.returnValues(
+        of({ status: 'AGUARDANDO_PAGAMENTO' }),
+        of({ status: 'AGUARDANDO_LIBERACAO_PRE_VENDA' }),
+      );
+
+      const fixture = criarFixture();
+      const itemPreVenda = criarItem({ isPresale: true, presaleDepositAmountCents: 5000 });
+      irParaPagamento(fixture, itemPreVenda);
+      brickConfigCapturado.callbacks.onSubmit({ formData: { payment_method_id: 'pix', token: null } });
+      tick();
+
+      expect(fixture.componentInstance['pedidoTinhaPreVenda']()).toBe(true);
+
+      tick(5000);
+      expect(fixture.componentInstance['pagamentoConfirmado']()).toBe(false);
+
+      tick(5000);
       expect(fixture.componentInstance['pagamentoConfirmado']()).toBe(true);
 
       discardPeriodicTasks();
