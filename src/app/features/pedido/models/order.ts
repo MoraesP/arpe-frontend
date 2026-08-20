@@ -38,6 +38,8 @@ export interface Order {
   subtotalItensCents: number;
   totalEntradaPreVendaCents: number;
   totalPagoCents: number;
+  pixDiscountPercentage: number | null;
+  pixDiscountAmountCents: number;
   trackingCode: string | null;
   itens: OrderItem[];
   createdAt: string;

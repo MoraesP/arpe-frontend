@@ -101,6 +101,7 @@ export class Detalhe {
       isPresale: produto.isPresale,
       presaleDepositAmountCents: produto.presaleDepositAmountCents,
       quantity: this.quantidade(),
+      stockQuantity: produto.quantity,
     });
 
     this.adicionado.set(true);

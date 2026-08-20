@@ -24,6 +24,7 @@ export interface Product {
   presaleDepositAmountCents: number | null;
   presaleStatus: 'RESERVADO' | 'DISPONIVEL' | null;
   isFeatured: boolean;
+  isActive: boolean;
   tags: Tag[];
   createdAt: string;
 }

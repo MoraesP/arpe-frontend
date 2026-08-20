@@ -14,6 +14,7 @@ function criarItem(overrides: Partial<CartItem> = {}): CartItem {
     isPresale: false,
     presaleDepositAmountCents: null,
     quantity: 2,
+    stockQuantity: 10,
     ...overrides,
   };
 }
@@ -69,6 +70,26 @@ describe('CarrinhoPagina', () => {
     carrinho.adicionar(criarItem({ quantity: 1 }));
     fixture.componentInstance.decrementar(carrinho.itens()[0]);
     expect(carrinho.itens()).toEqual([]);
+  });
+
+  it('botão "−" fica desabilitado quando a quantidade é 1', () => {
+    const fixture = criarFixture();
+    carrinho.adicionar(criarItem({ quantity: 1 }));
+    fixture.detectChanges();
+
+    const botoes = fixture.nativeElement.querySelectorAll('.stepper button');
+    expect(botoes[0].disabled).toBe(true);
+    expect(botoes[1].disabled).toBe(false);
+  });
+
+  it('botão "+" fica desabilitado quando a quantidade atinge o estoque disponível', () => {
+    const fixture = criarFixture();
+    carrinho.adicionar(criarItem({ quantity: 3, stockQuantity: 3 }));
+    fixture.detectChanges();
+
+    const botoes = fixture.nativeElement.querySelectorAll('.stepper button');
+    expect(botoes[0].disabled).toBe(false);
+    expect(botoes[1].disabled).toBe(true);
   });
 
   it('remover() tira o item do carrinho', () => {

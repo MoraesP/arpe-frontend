@@ -21,6 +21,7 @@ describe('AdminProdutoService', () => {
     isPresale: false,
     presaleDepositAmountCents: null,
     isFeatured: true,
+    isActive: true,
     tags: ['carros'],
   };
 

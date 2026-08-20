@@ -20,6 +20,8 @@ function criarOrder(overrides: Partial<Order> = {}): Order {
     subtotalItensCents: 10000,
     totalEntradaPreVendaCents: 0,
     totalPagoCents: 11500,
+    pixDiscountPercentage: null,
+    pixDiscountAmountCents: 0,
     trackingCode: null,
     itens: [],
     createdAt: new Date().toISOString(),

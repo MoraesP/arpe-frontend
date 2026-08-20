@@ -153,6 +153,16 @@
     <label class="checkbox">
       <input
         type="checkbox"
+        [ngModel]="isActive()"
+        (ngModelChange)="isActive.set($event)"
+        name="isActive"
+      />
+      Produto ativo (visível no catálogo)
+    </label>
+
+    <label class="checkbox">
+      <input
+        type="checkbox"
         [ngModel]="isPresale()"
         (ngModelChange)="isPresale.set($event)"
         name="isPresale"

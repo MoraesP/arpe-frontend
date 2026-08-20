@@ -6,7 +6,7 @@ import { AdminProdutoService, ProductRequest } from '../../services/admin-produt
 import { ProdutoService } from '../../../../catalogo/services/produto-service';
 import { ProductPhoto } from '../../../../catalogo/models/product';
 
-const MAX_FOTOS = 3;
+const MAX_FOTOS = 5;
 
 @Component({
   selector: 'app-form',
@@ -34,6 +34,7 @@ export class Form {
   protected readonly isPresale = signal(false);
   protected readonly presaleDepositReais = signal<number | null>(null);
   protected readonly isFeatured = signal(false);
+  protected readonly isActive = signal(true);
   protected readonly tagsTexto = signal('');
 
   protected readonly fotos = signal<ProductPhoto[]>([]);
@@ -66,6 +67,7 @@ export class Form {
               : null,
           );
           this.isFeatured.set(produto.isFeatured);
+          this.isActive.set(produto.isActive);
           this.tagsTexto.set(produto.tags.map((t) => t.name).join(', '));
           this.fotos.set(produto.photos);
           this.carregando.set(false);
@@ -100,6 +102,7 @@ export class Form {
         ? Math.round((this.presaleDepositReais() ?? 0) * 100)
         : null,
       isFeatured: this.isFeatured(),
+      isActive: this.isActive(),
       tags: this.tagsTexto()
         .split(',')
         .map((t) => t.trim())

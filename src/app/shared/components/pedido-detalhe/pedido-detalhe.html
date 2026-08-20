@@ -70,6 +70,12 @@
       <span>Frete</span>
       <span>{{ order().shippingCostCents | moeda }}</span>
     </div>
+    @if (order().pixDiscountAmountCents > 0) {
+      <div class="linha desconto">
+        <span>Desconto Pix ({{ order().pixDiscountPercentage }}%)</span>
+        <span>-{{ order().pixDiscountAmountCents | moeda }}</span>
+      </div>
+    }
     <div class="linha total">
       <span>Total pago</span>
       <span>{{ order().totalPagoCents | moeda }}</span>

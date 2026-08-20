@@ -82,6 +82,17 @@ h2 {
   margin-top: var(--space-sm);
 }
 
+.tag-desconto-pix {
+  display: inline-block;
+  margin-top: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
+  background: var(--color-gelo-soft);
+  color: var(--color-text-brand);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
 .aviso,
 .aviso-erro {
   font-size: 0.85rem;

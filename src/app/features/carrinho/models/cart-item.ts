@@ -6,4 +6,5 @@ export interface CartItem {
   isPresale: boolean;
   presaleDepositAmountCents: number | null;
   quantity: number;
+  stockQuantity: number;
 }

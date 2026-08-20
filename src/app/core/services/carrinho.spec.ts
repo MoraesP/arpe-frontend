@@ -14,6 +14,7 @@ function criarItem(overrides: Partial<CartItem> = {}): CartItem {
     isPresale: false,
     presaleDepositAmountCents: null,
     quantity: 1,
+    stockQuantity: 10,
     ...overrides,
   };
 }

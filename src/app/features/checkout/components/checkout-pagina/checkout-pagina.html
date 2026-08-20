@@ -211,6 +211,10 @@
             <span>{{ totais.totalPagoCents | moeda }}</span>
           </div>
 
+          @if (pixDiscountPercentage(); as percentual) {
+            <p class="tag-desconto-pix">🎉 {{ percentual }}% de desconto pagando no Pix</p>
+          }
+
           @if (totais.temPreVenda) {
             <p class="aviso-pre-venda">
               Seu pedido tem item(ns) de pré-venda — o envio ocorre somente quando todos os itens

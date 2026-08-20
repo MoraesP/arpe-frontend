@@ -7,6 +7,7 @@ import { CheckoutPagina } from './checkout-pagina';
 import { CheckoutService } from '../../services/checkout-service';
 import { PedidoService } from '../../../pedido/services/pedido-service';
 import { Carrinho } from '../../../../core/services/carrinho';
+import { PixDiscountConfigService } from '../../../../core/services/pix-discount-config';
 import { CartItem } from '../../../carrinho/models/cart-item';
 import { CheckoutPreferenciaResponse, CheckoutConfirmarResponse } from '../../models/checkout';
 
@@ -19,6 +20,7 @@ function criarItem(overrides: Partial<CartItem> = {}): CartItem {
     isPresale: false,
     presaleDepositAmountCents: null,
     quantity: 1,
+    stockQuantity: 10,
     ...overrides,
   };
 }
@@ -49,6 +51,11 @@ describe('CheckoutPagina', () => {
     pedidoService = jasmine.createSpyObj<PedidoService>('PedidoService', ['statusPagamento']);
     pedidoService.statusPagamento.and.returnValue(of({ status: 'AGUARDANDO_PAGAMENTO' }));
 
+    const pixDiscountConfigService = jasmine.createSpyObj<PixDiscountConfigService>('PixDiscountConfigService', [
+      'obter',
+    ]);
+    pixDiscountConfigService.obter.and.returnValue(of({ enabled: false, percentage: 0 }));
+
     TestBed.configureTestingModule({
       imports: [CheckoutPagina],
       providers: [
@@ -56,6 +63,7 @@ describe('CheckoutPagina', () => {
         { provide: PLATFORM_ID, useValue: 'browser' },
         { provide: CheckoutService, useValue: checkoutService },
         { provide: PedidoService, useValue: pedidoService },
+        { provide: PixDiscountConfigService, useValue: pixDiscountConfigService },
       ],
     });
 

@@ -16,6 +16,7 @@ export interface ProductRequest {
   isPresale: boolean;
   presaleDepositAmountCents: number | null;
   isFeatured: boolean;
+  isActive: boolean;
   tags: string[];
 }
 

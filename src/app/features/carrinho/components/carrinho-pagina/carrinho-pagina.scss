@@ -90,6 +90,15 @@ img,
     &:hover {
       background: var(--color-gelo-soft);
     }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+
+      &:hover {
+        background: var(--color-offwhite);
+      }
+    }
   }
 
   span {

@@ -24,9 +24,23 @@
               }
 
               <div class="stepper">
-                <button type="button" (click)="decrementar(item)" aria-label="Diminuir quantidade">−</button>
+                <button
+                  type="button"
+                  (click)="decrementar(item)"
+                  [disabled]="item.quantity <= 1"
+                  aria-label="Diminuir quantidade"
+                >
+                  −
+                </button>
                 <span>{{ item.quantity }}</span>
-                <button type="button" (click)="incrementar(item)" aria-label="Aumentar quantidade">+</button>
+                <button
+                  type="button"
+                  (click)="incrementar(item)"
+                  [disabled]="item.quantity >= item.stockQuantity"
+                  aria-label="Aumentar quantidade"
+                >
+                  +
+                </button>
               </div>
             </div>
 

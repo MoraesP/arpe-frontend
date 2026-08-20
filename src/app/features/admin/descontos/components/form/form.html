@@ -1,0 +1,41 @@
+<h1>Descontos</h1>
+
+@if (carregando()) {
+  <p class="vazio">Carregando...</p>
+} @else {
+  <form class="form" (ngSubmit)="salvar()">
+    <label class="checkbox">
+      <input type="checkbox" [ngModel]="enabled()" (ngModelChange)="enabled.set($event)" name="enabled" />
+      Habilitar desconto no Pix
+    </label>
+
+    @if (enabled()) {
+      <label>
+        Percentual de desconto (%)
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          max="100"
+          [ngModel]="percentage()"
+          (ngModelChange)="percentage.set($event)"
+          name="percentage"
+          required
+        />
+      </label>
+    }
+
+    @if (erro()) {
+      <p class="campo-erro">{{ erro() }}</p>
+    }
+    @if (sucesso()) {
+      <p class="sucesso">Configuração salva com sucesso.</p>
+    }
+
+    <div class="acoes-form">
+      <button type="submit" class="btn btn-primary" [disabled]="salvando()">
+        {{ salvando() ? 'Salvando...' : 'Salvar' }}
+      </button>
+    </div>
+  </form>
+}

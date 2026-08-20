@@ -1,0 +1,31 @@
+h1 {
+  font-size: 24px;
+  margin-bottom: var(--space-xl);
+}
+
+.checkbox {
+  flex-direction: row !important;
+  align-items: center;
+  gap: var(--space-sm) !important;
+
+  input {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+}
+
+.acoes-form {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.vazio {
+  color: var(--color-text-muted);
+}
+
+.sucesso {
+  color: var(--color-success, #2e7d32);
+  font-size: 0.85rem;
+  margin: calc(var(--space-xs) * -1) 0 0;
+}

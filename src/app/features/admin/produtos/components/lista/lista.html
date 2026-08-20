@@ -19,6 +19,7 @@
           <th>Estoque</th>
           <th>Destaque</th>
           <th>Pré-venda</th>
+          <th>Ativo</th>
           <th></th>
         </tr>
       </thead>
@@ -30,6 +31,7 @@
             <td>{{ produto.quantity }}</td>
             <td>{{ produto.isFeatured ? 'Sim' : '—' }}</td>
             <td>{{ produto.isPresale ? (produto.presaleStatus === 'DISPONIVEL' ? 'Disponível' : 'Reservado') : '—' }}</td>
+            <td>{{ produto.isActive ? 'Sim' : 'Não' }}</td>
             <td class="acoes">
               <a [routerLink]="['/admin/produtos', produto.id, 'editar']">Editar</a>
               <button type="button" (click)="excluir(produto)">Excluir</button>

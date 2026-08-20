@@ -69,6 +69,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/pre-venda/components/lista/lista').then((m) => m.Lista),
       },
       {
+        path: 'descontos',
+        loadComponent: () => import('./features/admin/descontos/components/form/form').then((m) => m.Form),
+      },
+      {
         path: 'pedidos',
         loadComponent: () => import('./features/admin/pedidos/components/lista/lista').then((m) => m.Lista),
       },

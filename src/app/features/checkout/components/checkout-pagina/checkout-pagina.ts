@@ -7,6 +7,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { catchError, debounceTime, interval, of, switchMap, take, takeWhile } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { Carrinho } from '../../../../core/services/carrinho';
+import { PixDiscountConfigService } from '../../../../core/services/pix-discount-config';
 import { MoedaPipe } from '../../../../shared/pipes/moeda-pipe';
 import { formatarCpfCnpj, isCpfCnpjValido } from '../../../../shared/utils/cpf-cnpj';
 import { PedidoService } from '../../../pedido/services/pedido-service';
@@ -68,6 +69,7 @@ const ESTADOS_BRASIL: { sigla: string; nome: string }[] = [
 export class CheckoutPagina {
   protected readonly carrinho = inject(Carrinho);
   private readonly checkoutService = inject(CheckoutService);
+  private readonly pixDiscountConfigService = inject(PixDiscountConfigService);
   private readonly pedidoService = inject(PedidoService);
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
@@ -104,7 +106,16 @@ export class CheckoutPagina {
   protected readonly brickCarregando = signal(false);
   protected readonly brickErro = signal<string | null>(null);
 
+  protected readonly pixDiscountPercentage = signal<number | null>(null);
+
   private brickController: any = null;
+
+  constructor() {
+    this.pixDiscountConfigService.obter().subscribe({
+      next: (config) => this.pixDiscountPercentage.set(config.enabled ? config.percentage : null),
+      error: () => this.pixDiscountPercentage.set(null),
+    });
+  }
 
   private readonly request = computed<CheckoutPreferenciaRequest | null>(() => {
     const itens = this.carrinho.itens();

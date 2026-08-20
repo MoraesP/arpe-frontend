@@ -21,6 +21,7 @@ function criarProduto(overrides: Partial<Product> = {}): Product {
     presaleDepositAmountCents: null,
     presaleStatus: null,
     isFeatured: false,
+    isActive: true,
     tags: [],
     createdAt: new Date().toISOString(),
     ...overrides,
