@@ -3,7 +3,5 @@ export const environment = {
   // Preenchido via variavel de ambiente no deploy (Vercel) -- ver
   // docs/architecture/overview.md. Placeholder ate o backend estar publicado.
   apiBaseUrl: 'https://arpe-backend.onrender.com/api',
-  // Placeholder -- trocar pela Public Key de PRODUCAO do Mercado Pago antes
-  // do primeiro deploy real (a de teste nao processa pagamento de verdade).
-  mercadoPagoPublicKey: 'TEST-533ae908-2715-4709-afab-a1542e8d308c',
+  mercadoPagoPublicKey: 'APP_USR-1ed26d58-9067-4a22-97de-82d2e46d76ab',
 };
