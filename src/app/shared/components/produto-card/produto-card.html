@@ -1,7 +1,7 @@
 <a class="card" [routerLink]="['/produtos', produto().id]">
   <div class="foto-wrap">
-    @if (produto().photoUrl) {
-      <img [src]="produto().photoUrl" [alt]="produto().name" />
+    @if (fotoCapa(produto()); as capa) {
+      <img [src]="capa" [alt]="produto().name" />
     } @else {
       <div class="foto-placeholder" aria-hidden="true"></div>
     }

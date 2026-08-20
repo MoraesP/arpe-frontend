@@ -1,10 +1,25 @@
 @if (produto(); as produto) {
   <section class="detalhe">
     <div class="foto-wrap">
-      @if (produto.photoUrl) {
-        <img [src]="produto.photoUrl" [alt]="produto.name" />
+      @if (fotoAtual(); as principal) {
+        <img class="foto-principal" [src]="principal" [alt]="produto.name" />
       } @else {
         <div class="foto-placeholder" aria-hidden="true"></div>
+      }
+
+      @if (produto.photos.length > 1) {
+        <div class="miniaturas">
+          @for (foto of produto.photos; track foto.id) {
+            <button
+              type="button"
+              class="miniatura"
+              [class.ativa]="foto.url === fotoAtual()"
+              (click)="selecionarFoto(foto.id)"
+            >
+              <img [src]="foto.url" [alt]="produto.name" />
+            </button>
+          }
+        </div>
       }
     </div>
 

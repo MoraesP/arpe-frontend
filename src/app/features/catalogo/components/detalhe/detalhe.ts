@@ -7,6 +7,7 @@ import { Carrinho } from '../../../../core/services/carrinho';
 import { MoedaPipe } from '../../../../shared/pipes/moeda-pipe';
 import { BadgePreVenda } from '../../../../shared/components/badge-pre-venda/badge-pre-venda';
 import { ProdutoService } from '../../services/produto-service';
+import { fotoCapa } from '../../models/product';
 
 interface AvisoEstoque {
   texto: string;
@@ -41,6 +42,21 @@ export class Detalhe {
   protected readonly quantidade = signal(1);
   protected readonly adicionado = signal(false);
   protected readonly erroQuantidade = signal<string | null>(null);
+
+  private readonly fotoSelecionadaId = signal<string | null>(null);
+
+  protected readonly fotoAtual = computed<string | null>(() => {
+    const fotos = this.produto()?.photos ?? [];
+    if (fotos.length === 0) {
+      return null;
+    }
+    const selecionada = fotos.find((f) => f.id === this.fotoSelecionadaId());
+    return (selecionada ?? fotos.find((f) => f.isFavorite) ?? fotos[0]).url;
+  });
+
+  selecionarFoto(photoId: string): void {
+    this.fotoSelecionadaId.set(photoId);
+  }
 
   protected readonly avisoEstoque = computed<AvisoEstoque | null>(() => {
     const estoque = this.produto()?.quantity;
@@ -80,7 +96,7 @@ export class Detalhe {
     this.carrinho.adicionar({
       productId: produto.id,
       name: produto.name,
-      photoUrl: produto.photoUrl,
+      photoUrl: fotoCapa(produto),
       priceCents: produto.priceCents,
       isPresale: produto.isPresale,
       presaleDepositAmountCents: produto.presaleDepositAmountCents,

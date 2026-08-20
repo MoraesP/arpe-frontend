@@ -40,9 +40,20 @@ export class AdminProdutoService {
     return this.http.delete<void>(`${this.baseUrl}/admin/produtos/${id}`);
   }
 
-  uploadFoto(id: string, file: File): Observable<Product> {
+  adicionarFoto(id: string, file: File): Observable<Product> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<Product>(`${this.baseUrl}/admin/produtos/${id}/foto`, formData);
+    return this.http.post<Product>(`${this.baseUrl}/admin/produtos/${id}/fotos`, formData);
+  }
+
+  removerFoto(id: string, photoId: string): Observable<Product> {
+    return this.http.delete<Product>(`${this.baseUrl}/admin/produtos/${id}/fotos/${photoId}`);
+  }
+
+  marcarFavorita(id: string, photoId: string): Observable<Product> {
+    return this.http.put<Product>(
+      `${this.baseUrl}/admin/produtos/${id}/fotos/${photoId}/favorita`,
+      {},
+    );
   }
 }

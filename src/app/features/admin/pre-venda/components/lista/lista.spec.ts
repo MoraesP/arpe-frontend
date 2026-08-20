@@ -10,7 +10,7 @@ function criarProduto(overrides: Partial<Product> = {}): Product {
     id: 'p1',
     name: 'Ferrari F40',
     description: null,
-    photoUrl: null,
+    photos: [],
     priceCents: 30000,
     quantity: 1,
     weightGrams: 500,

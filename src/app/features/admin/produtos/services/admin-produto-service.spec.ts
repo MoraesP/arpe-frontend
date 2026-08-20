@@ -68,15 +68,31 @@ describe('AdminProdutoService', () => {
     req.flush(null);
   });
 
-  it('uploadFoto() faz POST multipart em /admin/produtos/:id/foto com o arquivo', () => {
+  it('adicionarFoto() faz POST multipart em /admin/produtos/:id/fotos com o arquivo', () => {
     const arquivo = new File(['conteudo-fake'], 'foto.jpg', { type: 'image/jpeg' });
 
-    service.uploadFoto('p1', arquivo).subscribe();
+    service.adicionarFoto('p1', arquivo).subscribe();
 
-    const req = httpMock.expectOne(`${baseUrl}/admin/produtos/p1/foto`);
+    const req = httpMock.expectOne(`${baseUrl}/admin/produtos/p1/fotos`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body instanceof FormData).toBe(true);
     expect((req.request.body as FormData).get('file')).toBe(arquivo);
+    req.flush({});
+  });
+
+  it('removerFoto() faz DELETE em /admin/produtos/:id/fotos/:photoId', () => {
+    service.removerFoto('p1', 'foto-1').subscribe();
+
+    const req = httpMock.expectOne(`${baseUrl}/admin/produtos/p1/fotos/foto-1`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush({});
+  });
+
+  it('marcarFavorita() faz PUT em /admin/produtos/:id/fotos/:photoId/favorita', () => {
+    service.marcarFavorita('p1', 'foto-1').subscribe();
+
+    const req = httpMock.expectOne(`${baseUrl}/admin/produtos/p1/fotos/foto-1/favorita`);
+    expect(req.request.method).toBe('PUT');
     req.flush({});
   });
 });

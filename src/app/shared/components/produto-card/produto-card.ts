@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Product } from '../../../features/catalogo/models/product';
+import { Product, fotoCapa } from '../../../features/catalogo/models/product';
 import { MoedaPipe } from '../../pipes/moeda-pipe';
 import { BadgePreVenda } from '../badge-pre-venda/badge-pre-venda';
 
@@ -12,4 +12,5 @@ import { BadgePreVenda } from '../badge-pre-venda/badge-pre-venda';
 })
 export class ProdutoCard {
   readonly produto = input.required<Product>();
+  protected readonly fotoCapa = fotoCapa;
 }

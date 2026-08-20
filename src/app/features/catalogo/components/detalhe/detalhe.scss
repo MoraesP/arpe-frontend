@@ -16,7 +16,7 @@
   overflow: hidden;
 }
 
-img,
+.foto-principal,
 .foto-placeholder {
   width: 100%;
   aspect-ratio: 4 / 3;
@@ -26,6 +26,40 @@ img,
 
 .foto-placeholder {
   background: linear-gradient(135deg, var(--color-hairline-soft), var(--color-hairline));
+}
+
+.miniaturas {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.miniatura {
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  cursor: pointer;
+  background: none;
+  transition: border-color var(--transition-base);
+  width: 64px;
+  height: 48px;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &:hover {
+    border-color: var(--color-hairline);
+  }
+
+  &.ativa {
+    border-color: var(--color-interactive);
+  }
 }
 
 h1 {

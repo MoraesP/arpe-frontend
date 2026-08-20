@@ -34,7 +34,7 @@ h1 {
   color: var(--color-text-muted);
 }
 
-.foto-produto {
+.fotos-produto {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
@@ -44,30 +44,94 @@ h1 {
     font-weight: 600;
     color: var(--color-text);
   }
-
-  .sem-foto {
-    color: var(--color-text-muted);
-    font-size: 0.85rem;
-  }
 }
 
-.foto-preview {
+.fotos-grid {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+// sobrescreve o ".form label" global (flex-column, bold, altura fixa) --
+// aqui e um slot de foto quadrado, nao um rotulo de campo de texto
+.foto-slot {
+  position: relative;
   width: 120px;
   height: 120px;
-  object-fit: cover;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-hairline);
-  background: var(--color-offwhite);
-}
-
-// sobrescreve o ".form label" global (flex-column, bold) -- aqui e um
-// botao, nao um rotulo de campo
-.foto-produto .btn-upload {
-  display: inline-flex !important;
+  display: flex !important;
   flex-direction: row !important;
   align-items: center;
   justify-content: center;
-  width: fit-content;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  &.favorita {
+    box-shadow: 0 0 0 2px var(--color-interactive);
+  }
+}
+
+.remover-foto,
+.favoritar-foto {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: rgba(18, 60, 74, 0.65);
+  color: var(--color-white);
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  transition: background-color var(--transition-base);
+
+  &:hover {
+    background: var(--color-petroleo);
+  }
+}
+
+.remover-foto {
+  top: var(--space-xs);
+  right: var(--space-xs);
+}
+
+.favoritar-foto {
+  top: var(--space-xs);
+  left: var(--space-xs);
+
+  &.ativa {
+    background: var(--color-gelo);
+    color: var(--color-petroleo);
+  }
+}
+
+.foto-vazia {
+  border: 2px dashed var(--color-hairline);
+  background: var(--color-offwhite);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
+  text-align: center;
+  padding: var(--space-sm);
+  transition:
+    border-color var(--transition-base),
+    background-color var(--transition-base);
+
+  &:hover,
+  &.arrastando {
+    border-color: var(--color-interactive);
+    background: var(--color-gelo-soft);
+  }
 }
