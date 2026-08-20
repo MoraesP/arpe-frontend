@@ -1,0 +1,284 @@
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { PLATFORM_ID } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { of, throwError } from 'rxjs';
+import { CheckoutPagina } from './checkout-pagina';
+import { CheckoutService } from '../../services/checkout-service';
+import { Carrinho } from '../../../../core/services/carrinho';
+import { CartItem } from '../../../carrinho/models/cart-item';
+import { CheckoutPreferenciaResponse, CheckoutConfirmarResponse } from '../../models/checkout';
+
+function criarItem(overrides: Partial<CartItem> = {}): CartItem {
+  return {
+    productId: 'p1',
+    name: 'Ferrari F40',
+    photoUrl: null,
+    priceCents: 10000,
+    isPresale: false,
+    presaleDepositAmountCents: null,
+    quantity: 1,
+    ...overrides,
+  };
+}
+
+const totaisFake: CheckoutPreferenciaResponse = {
+  subtotalItensCents: 10000,
+  totalEntradaPreVendaCents: 0,
+  shippingCostCents: 0,
+  totalPagoCents: 10000,
+  temPreVenda: false,
+};
+
+describe('CheckoutPagina', () => {
+  let checkoutService: jasmine.SpyObj<CheckoutService>;
+  let carrinho: Carrinho;
+
+  beforeEach(() => {
+    localStorage.clear();
+    delete (window as any).MercadoPago;
+
+    checkoutService = jasmine.createSpyObj<CheckoutService>('CheckoutService', [
+      'preferencia',
+      'confirmar',
+    ]);
+    checkoutService.preferencia.and.returnValue(of(totaisFake));
+
+    TestBed.configureTestingModule({
+      imports: [CheckoutPagina],
+      providers: [
+        provideRouter([]),
+        { provide: PLATFORM_ID, useValue: 'browser' },
+        { provide: CheckoutService, useValue: checkoutService },
+      ],
+    });
+
+    carrinho = TestBed.inject(Carrinho);
+  });
+
+  function criarFixture() {
+    const fixture = TestBed.createComponent(CheckoutPagina);
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  function preencherDadosRetirada(fixture: ReturnType<typeof criarFixture>) {
+    fixture.componentInstance['nome'].set('Fulano');
+    fixture.componentInstance['email'].set('fulano@teste.com');
+    fixture.componentInstance['metodo'].set('RETIRADA');
+    fixture.componentInstance['telefone'].set('44999998888');
+  }
+
+  it('não consulta a preferência de checkout enquanto o carrinho estiver vazio', fakeAsync(() => {
+    const fixture = criarFixture();
+    tick(400);
+
+    expect(checkoutService.preferencia).not.toHaveBeenCalled();
+    expect(fixture.componentInstance['totais']()).toBeNull();
+  }));
+
+  it('não consulta a preferência sem telefone quando o método é retirada', fakeAsync(() => {
+    const fixture = criarFixture();
+    carrinho.adicionar(criarItem());
+    fixture.componentInstance['nome'].set('Fulano');
+    fixture.componentInstance['email'].set('fulano@teste.com');
+    fixture.detectChanges();
+    tick(400);
+
+    expect(checkoutService.preferencia).not.toHaveBeenCalled();
+  }));
+
+  it('não consulta a preferência sem endereço/CEP quando o método é Correios', fakeAsync(() => {
+    const fixture = criarFixture();
+    carrinho.adicionar(criarItem());
+    fixture.componentInstance['nome'].set('Fulano');
+    fixture.componentInstance['email'].set('fulano@teste.com');
+    fixture.componentInstance['metodo'].set('CORREIOS');
+    fixture.detectChanges();
+    tick(400);
+
+    expect(checkoutService.preferencia).not.toHaveBeenCalled();
+  }));
+
+  it('consulta a preferência (debounced) quando os dados obrigatórios da retirada estão completos', fakeAsync(() => {
+    const fixture = criarFixture();
+    carrinho.adicionar(criarItem());
+    preencherDadosRetirada(fixture);
+    fixture.detectChanges();
+    tick(399);
+    expect(checkoutService.preferencia).not.toHaveBeenCalled();
+
+    tick(1);
+    expect(checkoutService.preferencia).toHaveBeenCalled();
+    expect(fixture.componentInstance['totais']()).toEqual(totaisFake);
+  }));
+
+  it('em caso de erro do backend, expõe a mensagem de detail em preferenciaErro()', fakeAsync(() => {
+    checkoutService.preferencia.and.returnValue(
+      throwError(() => new HttpErrorResponse({ error: { detail: 'estoque insuficiente' } })),
+    );
+    const fixture = criarFixture();
+    carrinho.adicionar(criarItem());
+    preencherDadosRetirada(fixture);
+    fixture.detectChanges();
+    tick(400);
+
+    expect(fixture.componentInstance['preferenciaErro']()).toBe('estoque insuficiente');
+    expect(fixture.componentInstance['totais']()).toBeNull();
+  }));
+
+  it('irParaPagamento() não avança sem totais calculados', () => {
+    const fixture = criarFixture();
+    fixture.componentInstance.irParaPagamento();
+    expect(fixture.componentInstance['passo']()).toBe('dados');
+  });
+
+  describe('com o Payment Brick', () => {
+    let brickConfigCapturado: any;
+    let brickControllerFake: { unmount: jasmine.Spy };
+
+    beforeEach(() => {
+      brickControllerFake = { unmount: jasmine.createSpy('unmount') };
+      (window as any).MercadoPago = function () {
+        return {
+          bricks: () => ({
+            create: (_tipo: string, _containerId: string, config: any) => {
+              brickConfigCapturado = config;
+              return Promise.resolve(brickControllerFake);
+            },
+          }),
+        };
+      };
+    });
+
+    function irParaPagamento(fixture: ReturnType<typeof criarFixture>) {
+      carrinho.adicionar(criarItem());
+      preencherDadosRetirada(fixture);
+      fixture.detectChanges();
+      tick(400);
+      fixture.componentInstance.irParaPagamento();
+      tick(0);
+    }
+
+    it('inicializa o Brick com o valor total (em reais) e o e-mail do comprador', fakeAsync(() => {
+      const fixture = criarFixture();
+      irParaPagamento(fixture);
+
+      expect(fixture.componentInstance['passo']()).toBe('pagamento');
+      expect(brickConfigCapturado.initialization.amount).toBe(totaisFake.totalPagoCents / 100);
+      expect(brickConfigCapturado.initialization.payer.email).toBe('fulano@teste.com');
+    }));
+
+    it('onReady desliga o loading do Brick', fakeAsync(() => {
+      const fixture = criarFixture();
+      irParaPagamento(fixture);
+
+      brickConfigCapturado.callbacks.onReady();
+
+      expect(fixture.componentInstance['brickCarregando']()).toBe(false);
+    }));
+
+    it('onError com type "non_critical" não exibe erro (achado real: BIN incompleto durante digitação)', fakeAsync(() => {
+      const fixture = criarFixture();
+      irParaPagamento(fixture);
+
+      brickConfigCapturado.callbacks.onError({ type: 'non_critical' });
+
+      expect(fixture.componentInstance['brickErro']()).toBeNull();
+      expect(fixture.componentInstance['brickCarregando']()).toBe(false);
+    }));
+
+    it('onError com outro type exibe mensagem de erro pro usuário', fakeAsync(() => {
+      const fixture = criarFixture();
+      irParaPagamento(fixture);
+
+      brickConfigCapturado.callbacks.onError({ type: 'critical' });
+
+      expect(fixture.componentInstance['brickErro']()).toBe(
+        'Não foi possível carregar o formulário de pagamento. Tente novamente.',
+      );
+    }));
+
+    it('onSubmit com sucesso limpa o carrinho e exibe a confirmação (com dados de Pix)', fakeAsync(() => {
+      const respostaConfirmacao: CheckoutConfirmarResponse = {
+        orderId: 'order-1',
+        status: 'AGUARDANDO_PAGAMENTO',
+        totalPagoCents: 10000,
+        pixQrCode: 'copia-e-cola-fake',
+        pixQrCodeBase64: 'base64-fake',
+      };
+      checkoutService.confirmar.and.returnValue(of(respostaConfirmacao));
+      spyOn(carrinho, 'limpar');
+
+      const fixture = criarFixture();
+      irParaPagamento(fixture);
+
+      let resolvido = false;
+      const promise = brickConfigCapturado.callbacks.onSubmit({
+        formData: { payment_method_id: 'pix', token: null },
+      });
+      promise.then(() => (resolvido = true));
+      tick();
+
+      expect(checkoutService.confirmar).toHaveBeenCalled();
+      const bodyEnviado = checkoutService.confirmar.calls.mostRecent().args[0];
+      expect(bodyEnviado.metodoPagamento).toBe('PIX');
+      expect(carrinho.limpar).toHaveBeenCalled();
+      expect(fixture.componentInstance['pixQrCode']()).toBe('copia-e-cola-fake');
+      expect(fixture.componentInstance['pedidoConfirmado']()).toBe('order-1');
+      expect(resolvido).toBe(true);
+    }));
+
+    it('onSubmit com cartão envia metodoPagamento CARTAO', fakeAsync(() => {
+      checkoutService.confirmar.and.returnValue(
+        of({
+          orderId: 'order-1',
+          status: 'PAGO',
+          totalPagoCents: 10000,
+          pixQrCode: null,
+          pixQrCodeBase64: null,
+        }),
+      );
+      const fixture = criarFixture();
+      irParaPagamento(fixture);
+
+      const promise = brickConfigCapturado.callbacks.onSubmit({
+        formData: { payment_method_id: 'visa', token: 'tok-123', installments: 1, issuer_id: '25' },
+      });
+      promise.catch(() => {});
+      tick();
+
+      const bodyEnviado = checkoutService.confirmar.calls.mostRecent().args[0];
+      expect(bodyEnviado.metodoPagamento).toBe('CARTAO');
+      expect(bodyEnviado.cardToken).toBe('tok-123');
+    }));
+
+    it('onSubmit com falha do backend rejeita a promise e exibe a mensagem de erro', fakeAsync(() => {
+      checkoutService.confirmar.and.returnValue(
+        throwError(() => new HttpErrorResponse({ error: { detail: 'pagamento recusado' } })),
+      );
+      const fixture = criarFixture();
+      irParaPagamento(fixture);
+
+      let rejeitado = false;
+      const promise = brickConfigCapturado.callbacks.onSubmit({
+        formData: { payment_method_id: 'visa' },
+      });
+      promise.catch(() => (rejeitado = true));
+      tick();
+
+      expect(rejeitado).toBe(true);
+      expect(fixture.componentInstance['erro']()).toBe('pagamento recusado');
+    }));
+
+    it('voltarParaDados() desmonta o Brick e volta pro passo "dados"', fakeAsync(() => {
+      const fixture = criarFixture();
+      irParaPagamento(fixture);
+
+      fixture.componentInstance.voltarParaDados();
+
+      expect(brickControllerFake.unmount).toHaveBeenCalled();
+      expect(fixture.componentInstance['passo']()).toBe('dados');
+    }));
+  });
+});
