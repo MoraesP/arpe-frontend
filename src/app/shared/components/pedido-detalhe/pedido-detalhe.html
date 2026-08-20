@@ -66,6 +66,12 @@
         <span>{{ order().totalEntradaPreVendaCents | moeda }}</span>
       </div>
     }
+    @if (saldoPendente()) {
+      <div class="linha pendente">
+        <span>Saldo a quitar (pré-venda)</span>
+        <span>{{ order().saldoPreVendaCents | moeda }}</span>
+      </div>
+    }
     <div class="linha">
       <span>Frete</span>
       <span>{{ order().shippingCostCents | moeda }}</span>
@@ -76,9 +82,21 @@
         <span>-{{ order().pixDiscountAmountCents | moeda }}</span>
       </div>
     }
+    @if (saldoPago()) {
+      <div class="linha">
+        <span>Saldo pré-venda pago</span>
+        <span>{{ order().saldoPreVendaCents | moeda }}</span>
+      </div>
+    }
     <div class="linha total">
       <span>Total pago</span>
       <span>{{ order().totalPagoCents | moeda }}</span>
     </div>
+    @if (saldoPendente()) {
+      <p class="aviso-saldo">
+        O saldo acima ainda não entra no total pago — só depois que o(s) item(ns) de pré-venda
+        estiver(em) disponível(is) e o saldo for pago.
+      </p>
+    }
   </div>
 </div>

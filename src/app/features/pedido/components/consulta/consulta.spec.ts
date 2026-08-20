@@ -18,6 +18,7 @@ function criarOrder(overrides: Partial<Order> = {}): Order {
     subtotalItensCents: 10000,
     totalEntradaPreVendaCents: 0,
     totalPagoCents: 10000,
+    saldoPreVendaCents: 0,
     pixDiscountPercentage: null,
     pixDiscountAmountCents: 0,
     trackingCode: null,

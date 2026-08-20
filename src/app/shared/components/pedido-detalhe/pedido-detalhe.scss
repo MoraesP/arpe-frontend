@@ -104,3 +104,14 @@
 .linha.desconto {
   color: var(--color-success, #2e7d32);
 }
+
+.linha.pendente {
+  color: var(--color-warning, #b7791f);
+  font-weight: 600;
+}
+
+.aviso-saldo {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-top: var(--space-xs);
+}
