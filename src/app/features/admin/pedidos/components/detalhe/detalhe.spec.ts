@@ -11,6 +11,7 @@ function criarOrder(overrides: Partial<Order> = {}): Order {
     id: 'order-1',
     customerName: 'Fulano',
     customerEmail: 'fulano@teste.com',
+    customerDocument: null,
     status: 'PAGO',
     shippingMethod: 'CORREIOS',
     shippingCostCents: 1500,
@@ -32,7 +33,10 @@ describe('Detalhe (admin/pedidos)', () => {
   beforeEach(() => {
     service = jasmine.createSpyObj<AdminPedidoService>('AdminPedidoService', [
       'detalhe',
+      'retiradaAgendada',
+      'preparandoEnvio',
       'postar',
+      'concluir',
       'cancelar',
     ]);
     service.detalhe.and.returnValue(of(criarOrder()));
@@ -62,21 +66,56 @@ describe('Detalhe (admin/pedidos)', () => {
     expect(fixture.componentInstance['carregando']()).toBe(false);
   });
 
-  it('podeAgir() é true para pedidos que não foram enviados nem cancelados', () => {
+  it('podeCancelar() é true para pedidos que não foram enviados, concluídos nem cancelados', () => {
     const fixture = criarFixture();
-    expect(fixture.componentInstance.podeAgir()).toBe(true);
+    expect(fixture.componentInstance.podeCancelar()).toBe(true);
   });
 
-  it('podeAgir() é false quando o pedido já foi enviado', () => {
+  it('podeCancelar() é false quando o pedido já foi enviado', () => {
     service.detalhe.and.returnValue(of(criarOrder({ status: 'ENVIADO' })));
     const fixture = criarFixture();
-    expect(fixture.componentInstance.podeAgir()).toBe(false);
+    expect(fixture.componentInstance.podeCancelar()).toBe(false);
   });
 
-  it('podeAgir() é false quando o pedido já foi cancelado', () => {
+  it('podeCancelar() é false quando o pedido já foi concluído', () => {
+    service.detalhe.and.returnValue(of(criarOrder({ status: 'CONCLUIDO' })));
+    const fixture = criarFixture();
+    expect(fixture.componentInstance.podeCancelar()).toBe(false);
+  });
+
+  it('podeCancelar() é false quando o pedido já foi cancelado', () => {
     service.detalhe.and.returnValue(of(criarOrder({ status: 'CANCELADO' })));
     const fixture = criarFixture();
-    expect(fixture.componentInstance.podeAgir()).toBe(false);
+    expect(fixture.componentInstance.podeCancelar()).toBe(false);
+  });
+
+  it('proximaAcao() é preparar-envio para pedido pago via Correios', () => {
+    const fixture = criarFixture();
+    expect(fixture.componentInstance.proximaAcao()).toBe('preparar-envio');
+  });
+
+  it('proximaAcao() é agendar-retirada para pedido pago via Retirada Local', () => {
+    service.detalhe.and.returnValue(of(criarOrder({ status: 'PAGO', shippingMethod: 'RETIRADA' })));
+    const fixture = criarFixture();
+    expect(fixture.componentInstance.proximaAcao()).toBe('agendar-retirada');
+  });
+
+  it('proximaAcao() é postar quando preparando envio', () => {
+    service.detalhe.and.returnValue(of(criarOrder({ status: 'PREPARANDO_ENVIO' })));
+    const fixture = criarFixture();
+    expect(fixture.componentInstance.proximaAcao()).toBe('postar');
+  });
+
+  it('proximaAcao() é concluir quando enviado ou retirada agendada', () => {
+    service.detalhe.and.returnValue(of(criarOrder({ status: 'ENVIADO' })));
+    const fixture = criarFixture();
+    expect(fixture.componentInstance.proximaAcao()).toBe('concluir');
+  });
+
+  it('proximaAcao() é nula quando concluído ou cancelado', () => {
+    service.detalhe.and.returnValue(of(criarOrder({ status: 'CONCLUIDO' })));
+    const fixture = criarFixture();
+    expect(fixture.componentInstance.proximaAcao()).toBeNull();
   });
 
   it('postar() não faz nada sem código de rastreio preenchido', () => {
@@ -109,6 +148,42 @@ describe('Detalhe (admin/pedidos)', () => {
 
     expect(fixture.componentInstance['mensagem']()).toBe('pedido já enviado');
     expect(fixture.componentInstance['processando']()).toBe(false);
+  });
+
+  it('agendarRetirada() atualiza o pedido e exibe mensagem de sucesso', () => {
+    const pedidoAgendado = criarOrder({ status: 'RETIRADA_AGENDADA', shippingMethod: 'RETIRADA' });
+    service.retiradaAgendada.and.returnValue(of(pedidoAgendado));
+    const fixture = criarFixture();
+
+    fixture.componentInstance.agendarRetirada();
+
+    expect(service.retiradaAgendada).toHaveBeenCalledWith('order-1');
+    expect(fixture.componentInstance['order']()).toEqual(pedidoAgendado);
+    expect(fixture.componentInstance['mensagem']()).toBe('Retirada agendada.');
+  });
+
+  it('prepararEnvio() atualiza o pedido e exibe mensagem de sucesso', () => {
+    const pedidoPreparando = criarOrder({ status: 'PREPARANDO_ENVIO' });
+    service.preparandoEnvio.and.returnValue(of(pedidoPreparando));
+    const fixture = criarFixture();
+
+    fixture.componentInstance.prepararEnvio();
+
+    expect(service.preparandoEnvio).toHaveBeenCalledWith('order-1');
+    expect(fixture.componentInstance['order']()).toEqual(pedidoPreparando);
+    expect(fixture.componentInstance['mensagem']()).toBe('Pedido marcado como preparando envio.');
+  });
+
+  it('concluir() atualiza o pedido e exibe mensagem de sucesso', () => {
+    const pedidoConcluido = criarOrder({ status: 'CONCLUIDO' });
+    service.concluir.and.returnValue(of(pedidoConcluido));
+    const fixture = criarFixture();
+
+    fixture.componentInstance.concluir();
+
+    expect(service.concluir).toHaveBeenCalledWith('order-1');
+    expect(fixture.componentInstance['order']()).toEqual(pedidoConcluido);
+    expect(fixture.componentInstance['mensagem']()).toBe('Pedido concluído.');
   });
 
   it('cancelar() não chama o serviço quando o admin não confirma o dialog', () => {

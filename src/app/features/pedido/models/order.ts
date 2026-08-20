@@ -4,8 +4,10 @@ export type OrderStatus =
   | 'AGUARDANDO_LIBERACAO_PRE_VENDA'
   | 'AGUARDANDO_PAGAMENTO_SALDO'
   | 'PAGO_COMPLETO'
+  | 'RETIRADA_AGENDADA'
   | 'PREPARANDO_ENVIO'
   | 'ENVIADO'
+  | 'CONCLUIDO'
   | 'CANCELADO';
 
 export type ShippingMethod = 'RETIRADA' | 'CORREIOS';
@@ -27,6 +29,7 @@ export interface Order {
   id: string;
   customerName: string;
   customerEmail: string;
+  customerDocument: string | null;
   status: OrderStatus;
   shippingMethod: ShippingMethod;
   shippingCostCents: number;
@@ -55,7 +58,9 @@ export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
   AGUARDANDO_LIBERACAO_PRE_VENDA: 'Aguardando liberação de pré-venda',
   AGUARDANDO_PAGAMENTO_SALDO: 'Aguardando pagamento do saldo',
   PAGO_COMPLETO: 'Pago (completo)',
+  RETIRADA_AGENDADA: 'Retirada agendada',
   PREPARANDO_ENVIO: 'Preparando envio',
   ENVIADO: 'Enviado',
+  CONCLUIDO: 'Concluído',
   CANCELADO: 'Cancelado',
 };

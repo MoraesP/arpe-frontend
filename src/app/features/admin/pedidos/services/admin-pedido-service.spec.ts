@@ -52,6 +52,33 @@ describe('AdminPedidoService', () => {
     req.flush({});
   });
 
+  it('retiradaAgendada() faz POST em /admin/pedidos/:id/retirada-agendada sem corpo relevante', () => {
+    service.retiradaAgendada('order-1').subscribe();
+
+    const req = httpMock.expectOne(`${baseUrl}/admin/pedidos/order-1/retirada-agendada`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({});
+    req.flush({});
+  });
+
+  it('preparandoEnvio() faz POST em /admin/pedidos/:id/preparando-envio sem corpo relevante', () => {
+    service.preparandoEnvio('order-1').subscribe();
+
+    const req = httpMock.expectOne(`${baseUrl}/admin/pedidos/order-1/preparando-envio`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({});
+    req.flush({});
+  });
+
+  it('concluir() faz POST em /admin/pedidos/:id/concluir sem corpo relevante', () => {
+    service.concluir('order-1').subscribe();
+
+    const req = httpMock.expectOne(`${baseUrl}/admin/pedidos/order-1/concluir`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({});
+    req.flush({});
+  });
+
   it('postar() faz POST em /admin/pedidos/:id/postar com o código de rastreio', () => {
     service.postar('order-1', 'BR123456789').subscribe();
 

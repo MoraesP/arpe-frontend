@@ -1,10 +1,11 @@
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
 import { PLATFORM_ID } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { CheckoutPagina } from './checkout-pagina';
 import { CheckoutService } from '../../services/checkout-service';
+import { PedidoService } from '../../../pedido/services/pedido-service';
 import { Carrinho } from '../../../../core/services/carrinho';
 import { CartItem } from '../../../carrinho/models/cart-item';
 import { CheckoutPreferenciaResponse, CheckoutConfirmarResponse } from '../../models/checkout';
@@ -32,6 +33,7 @@ const totaisFake: CheckoutPreferenciaResponse = {
 
 describe('CheckoutPagina', () => {
   let checkoutService: jasmine.SpyObj<CheckoutService>;
+  let pedidoService: jasmine.SpyObj<PedidoService>;
   let carrinho: Carrinho;
 
   beforeEach(() => {
@@ -44,12 +46,16 @@ describe('CheckoutPagina', () => {
     ]);
     checkoutService.preferencia.and.returnValue(of(totaisFake));
 
+    pedidoService = jasmine.createSpyObj<PedidoService>('PedidoService', ['statusPagamento']);
+    pedidoService.statusPagamento.and.returnValue(of({ status: 'AGUARDANDO_PAGAMENTO' }));
+
     TestBed.configureTestingModule({
       imports: [CheckoutPagina],
       providers: [
         provideRouter([]),
         { provide: PLATFORM_ID, useValue: 'browser' },
         { provide: CheckoutService, useValue: checkoutService },
+        { provide: PedidoService, useValue: pedidoService },
       ],
     });
 
@@ -67,6 +73,7 @@ describe('CheckoutPagina', () => {
     fixture.componentInstance['email'].set('fulano@teste.com');
     fixture.componentInstance['metodo'].set('RETIRADA');
     fixture.componentInstance['telefone'].set('44999998888');
+    fixture.componentInstance['documento'].set('111.444.777-35');
   }
 
   it('não consulta a preferência de checkout enquanto o carrinho estiver vazio', fakeAsync(() => {
@@ -77,11 +84,25 @@ describe('CheckoutPagina', () => {
     expect(fixture.componentInstance['totais']()).toBeNull();
   }));
 
-  it('não consulta a preferência sem telefone quando o método é retirada', fakeAsync(() => {
+  it('não consulta a preferência sem telefone (obrigatório pra qualquer método)', fakeAsync(() => {
     const fixture = criarFixture();
     carrinho.adicionar(criarItem());
     fixture.componentInstance['nome'].set('Fulano');
     fixture.componentInstance['email'].set('fulano@teste.com');
+    fixture.componentInstance['documento'].set('111.444.777-35');
+    fixture.detectChanges();
+    tick(400);
+
+    expect(checkoutService.preferencia).not.toHaveBeenCalled();
+  }));
+
+  it('não consulta a preferência sem CPF/CNPJ válido (obrigatório pra qualquer método)', fakeAsync(() => {
+    const fixture = criarFixture();
+    carrinho.adicionar(criarItem());
+    fixture.componentInstance['nome'].set('Fulano');
+    fixture.componentInstance['email'].set('fulano@teste.com');
+    fixture.componentInstance['telefone'].set('44999998888');
+    fixture.componentInstance['documento'].set('111.111.111-11'); // digito verificador invalido
     fixture.detectChanges();
     tick(400);
 
@@ -115,6 +136,48 @@ describe('CheckoutPagina', () => {
     expect(checkoutService.preferencia).not.toHaveBeenCalled();
   }));
 
+  it('onTelefoneChange() aplica a máscara (xx) xxxxx-xxxx conforme o usuário digita', () => {
+    const fixture = criarFixture();
+
+    fixture.componentInstance.onTelefoneChange('44');
+    expect(fixture.componentInstance['telefone']()).toBe('44');
+
+    fixture.componentInstance.onTelefoneChange('4499999');
+    expect(fixture.componentInstance['telefone']()).toBe('(44) 99999');
+
+    fixture.componentInstance.onTelefoneChange('44999998888');
+    expect(fixture.componentInstance['telefone']()).toBe('(44) 99999-8888');
+  });
+
+  it('onDocumentoChange() aplica a máscara de CPF/CNPJ conforme os dígitos', () => {
+    const fixture = criarFixture();
+
+    fixture.componentInstance.onDocumentoChange('11144477735');
+    expect(fixture.componentInstance['documento']()).toBe('111.444.777-35');
+
+    fixture.componentInstance.onDocumentoChange('11222333000181');
+    expect(fixture.componentInstance['documento']()).toBe('11.222.333/0001-81');
+  });
+
+  it('documentoInvalido() só acusa erro depois do campo perder foco (blur)', () => {
+    const fixture = criarFixture();
+    fixture.componentInstance.onDocumentoChange('11111111111'); // digito verificador invalido
+
+    expect(fixture.componentInstance['documentoInvalido']()).toBe(false);
+
+    fixture.componentInstance.onDocumentoBlur();
+
+    expect(fixture.componentInstance['documentoInvalido']()).toBe(true);
+  });
+
+  it('documentoInvalido() é falso para um CPF válido após o blur', () => {
+    const fixture = criarFixture();
+    fixture.componentInstance.onDocumentoChange('11144477735');
+    fixture.componentInstance.onDocumentoBlur();
+
+    expect(fixture.componentInstance['documentoInvalido']()).toBe(false);
+  });
+
   it('onCepChange() aplica a máscara xxxxx-xxx conforme o usuário digita', () => {
     const fixture = criarFixture();
 
@@ -133,6 +196,8 @@ describe('CheckoutPagina', () => {
     carrinho.adicionar(criarItem());
     fixture.componentInstance['nome'].set('Fulano');
     fixture.componentInstance['email'].set('fulano@teste.com');
+    fixture.componentInstance['telefone'].set('44999998888');
+    fixture.componentInstance['documento'].set('111.444.777-35');
     fixture.componentInstance['metodo'].set('CORREIOS');
     fixture.componentInstance['cepDestino'].set('87010-000');
     fixture.componentInstance['logradouro'].set('Rua das Flores');
@@ -154,6 +219,8 @@ describe('CheckoutPagina', () => {
     carrinho.adicionar(criarItem());
     fixture.componentInstance['nome'].set('Fulano');
     fixture.componentInstance['email'].set('fulano@teste.com');
+    fixture.componentInstance['telefone'].set('44999998888');
+    fixture.componentInstance['documento'].set('111.444.777-35');
     fixture.componentInstance['metodo'].set('CORREIOS');
     fixture.componentInstance['cepDestino'].set('87010-000');
     fixture.componentInstance['logradouro'].set('Rua das Flores');
@@ -273,6 +340,7 @@ describe('CheckoutPagina', () => {
         totalPagoCents: 10000,
         pixQrCode: 'copia-e-cola-fake',
         pixQrCodeBase64: 'base64-fake',
+        pixExpiraEm: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
       };
       checkoutService.confirmar.and.returnValue(of(respostaConfirmacao));
       spyOn(carrinho, 'limpar');
@@ -296,6 +364,62 @@ describe('CheckoutPagina', () => {
       expect(resolvido).toBe(true);
     }));
 
+    it('acompanha o pagamento via polling e marca pagamentoConfirmado() quando o status vira PAGO', fakeAsync(() => {
+      const respostaConfirmacao: CheckoutConfirmarResponse = {
+        orderId: 'order-1',
+        status: 'AGUARDANDO_PAGAMENTO',
+        totalPagoCents: 10000,
+        pixQrCode: 'copia-e-cola-fake',
+        pixQrCodeBase64: 'base64-fake',
+        pixExpiraEm: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      };
+      checkoutService.confirmar.and.returnValue(of(respostaConfirmacao));
+      pedidoService.statusPagamento.and.returnValues(
+        of({ status: 'AGUARDANDO_PAGAMENTO' }),
+        of({ status: 'PAGO' }),
+      );
+
+      const fixture = criarFixture();
+      irParaPagamento(fixture);
+      brickConfigCapturado.callbacks.onSubmit({ formData: { payment_method_id: 'pix', token: null } });
+      tick();
+
+      expect(fixture.componentInstance['pagamentoConfirmado']()).toBe(false);
+
+      tick(5000); // 1a checagem -- ainda aguardando
+      expect(fixture.componentInstance['pagamentoConfirmado']()).toBe(false);
+
+      tick(5000); // 2a checagem -- pago
+      expect(fixture.componentInstance['pagamentoConfirmado']()).toBe(true);
+
+      discardPeriodicTasks();
+    }));
+
+    it('marca pixExpirado() quando o prazo esgota sem confirmação', fakeAsync(() => {
+      const respostaConfirmacao: CheckoutConfirmarResponse = {
+        orderId: 'order-1',
+        status: 'AGUARDANDO_PAGAMENTO',
+        totalPagoCents: 10000,
+        pixQrCode: 'copia-e-cola-fake',
+        pixQrCodeBase64: 'base64-fake',
+        pixExpiraEm: new Date(Date.now() + 5000).toISOString(), // expira no 1o tick
+      };
+      checkoutService.confirmar.and.returnValue(of(respostaConfirmacao));
+      pedidoService.statusPagamento.and.returnValue(of({ status: 'AGUARDANDO_PAGAMENTO' }));
+
+      const fixture = criarFixture();
+      irParaPagamento(fixture);
+      brickConfigCapturado.callbacks.onSubmit({ formData: { payment_method_id: 'pix', token: null } });
+      tick();
+
+      tick(5000);
+
+      expect(fixture.componentInstance['pixExpirado']()).toBe(true);
+      expect(fixture.componentInstance['pagamentoConfirmado']()).toBe(false);
+
+      discardPeriodicTasks();
+    }));
+
     it('onSubmit com cartão envia metodoPagamento CARTAO', fakeAsync(() => {
       checkoutService.confirmar.and.returnValue(
         of({
@@ -304,6 +428,7 @@ describe('CheckoutPagina', () => {
           totalPagoCents: 10000,
           pixQrCode: null,
           pixQrCodeBase64: null,
+          pixExpiraEm: null,
         }),
       );
       const fixture = criarFixture();

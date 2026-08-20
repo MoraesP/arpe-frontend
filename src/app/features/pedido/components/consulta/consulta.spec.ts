@@ -9,6 +9,7 @@ function criarOrder(overrides: Partial<Order> = {}): Order {
     id: 'order-1',
     customerName: 'Fulano',
     customerEmail: 'fulano@teste.com',
+    customerDocument: null,
     status: 'PAGO',
     shippingMethod: 'RETIRADA',
     shippingCostCents: 0,

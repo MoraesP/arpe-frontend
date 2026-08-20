@@ -23,7 +23,7 @@ describe('CheckoutService', () => {
   it('preferencia() faz POST em /checkout/preferencia com o corpo da requisição', () => {
     const request: CheckoutPreferenciaRequest = {
       itens: [{ productId: 'p1', quantity: 2 }],
-      comprador: { nome: 'Fulano', email: 'fulano@teste.com', telefone: null },
+      comprador: { nome: 'Fulano', email: 'fulano@teste.com', telefone: '44999998888', document: '11144477735' },
       envio: {
         metodo: 'RETIRADA',
         enderecoEntrega: null,
@@ -43,7 +43,7 @@ describe('CheckoutService', () => {
   it('confirmar() faz POST em /checkout/confirmar com o corpo da requisição', () => {
     const request: CheckoutConfirmarRequest = {
       itens: [{ productId: 'p1', quantity: 1 }],
-      comprador: { nome: 'Fulano', email: 'fulano@teste.com', telefone: null },
+      comprador: { nome: 'Fulano', email: 'fulano@teste.com', telefone: '44999998888', document: '11144477735' },
       envio: {
         metodo: 'CORREIOS',
         enderecoEntrega: 'Rua X, 123',

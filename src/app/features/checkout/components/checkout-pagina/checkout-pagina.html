@@ -1,29 +1,40 @@
 @if (pedidoConfirmado(); as orderId) {
   <section class="pagina confirmacao">
-    @if (pixQrCode(); as codigo) {
+    @if (pagamentoConfirmado()) {
+      <h1>Pagamento confirmado!</h1>
+      <p>Seu pedido foi pago com sucesso. Você também recebe a confirmação por e-mail.</p>
+    } @else if (pixQrCode(); as codigo) {
       <h1>Falta pagar com Pix</h1>
-      <p>Escaneie o QR code abaixo no app do seu banco, ou copie o código.</p>
+      @if (!pixExpirado()) {
+        <p>Escaneie o QR code abaixo no app do seu banco, ou copie o código.</p>
 
-      @if (pixQrCodeBase64(); as imagem) {
-        <img class="pix-qr" [src]="'data:image/png;base64,' + imagem" alt="QR code Pix" />
+        @if (pixQrCodeBase64(); as imagem) {
+          <img class="pix-qr" [src]="'data:image/png;base64,' + imagem" alt="QR code Pix" />
+        }
+
+        <div class="pix-copia-cola">
+          <code>{{ codigo }}</code>
+          <button type="button" class="btn btn-secondary" (click)="copiarCodigoPix()">
+            {{ pixCopiado() ? 'Copiado!' : 'Copiar código' }}
+          </button>
+        </div>
+
+        <p class="pix-cronometro">Expira em {{ formatarTempo() }}</p>
+        <p class="aviso">
+          Assim que o pagamento for confirmado, esta tela atualiza sozinha (e você também recebe um
+          e-mail).
+        </p>
+      } @else {
+        <p class="campo-erro">
+          O QR code expirou sem confirmação de pagamento. Faça um novo pedido para gerar outro.
+        </p>
       }
-
-      <div class="pix-copia-cola">
-        <code>{{ codigo }}</code>
-        <button type="button" class="btn btn-secondary" (click)="copiarCodigoPix()">
-          {{ pixCopiado() ? 'Copiado!' : 'Copiar código' }}
-        </button>
-      </div>
-
-      <p class="aviso">
-        Assim que o pagamento for confirmado, você recebe um e-mail. Guarde o ID do pedido abaixo.
-      </p>
     } @else {
       <h1>Pedido confirmado!</h1>
       <p>
-        Seu pedido foi criado com sucesso. Guarde o ID abaixo — você vai precisar dele, junto com o
-        e-mail usado na compra, para consultar o status (você recebe uma chave por e-mail na hora de
-        consultar).
+        Seu pedido foi criado com sucesso. Assim que o pagamento for confirmado, esta tela atualiza
+        sozinha. Guarde o ID abaixo — você vai precisar dele, junto com o e-mail usado na compra, para
+        consultar o status (você recebe uma chave por e-mail na hora de consultar).
       </p>
     }
 
@@ -57,6 +68,32 @@
             E-mail
             <input type="email" [(ngModel)]="email" name="email" required />
           </label>
+          <label>
+            Telefone
+            <input
+              type="tel"
+              [ngModel]="telefone()"
+              (ngModelChange)="onTelefoneChange($event)"
+              name="telefone"
+              required
+              placeholder="(44) 99999-9999"
+            />
+          </label>
+          <label>
+            CPF/CNPJ
+            <input
+              type="text"
+              [ngModel]="documento()"
+              (ngModelChange)="onDocumentoChange($event)"
+              (blur)="onDocumentoBlur()"
+              name="documento"
+              required
+              placeholder="000.000.000-00"
+            />
+            @if (documentoInvalido()) {
+              <span class="campo-erro">CPF/CNPJ inválido.</span>
+            }
+          </label>
 
           <h2>Envio</h2>
           <label>
@@ -67,18 +104,7 @@
             </select>
           </label>
 
-          @if (metodo() === 'RETIRADA') {
-            <label>
-              Telefone de contato
-              <input
-                type="tel"
-                [(ngModel)]="telefone"
-                name="telefone"
-                required
-                placeholder="(44) 99999-9999"
-              />
-            </label>
-          } @else {
+          @if (metodo() === 'CORREIOS') {
             <label>
               CEP de destino
               <input

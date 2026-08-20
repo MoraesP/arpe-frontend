@@ -1,13 +1,15 @@
 import { isPlatformBrowser } from '@angular/common';
-import { Component, PLATFORM_ID, computed, inject, signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
-import { catchError, debounceTime, of, switchMap } from 'rxjs';
+import { catchError, debounceTime, interval, of, switchMap, take, takeWhile } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { Carrinho } from '../../../../core/services/carrinho';
 import { MoedaPipe } from '../../../../shared/pipes/moeda-pipe';
+import { formatarCpfCnpj, isCpfCnpjValido } from '../../../../shared/utils/cpf-cnpj';
+import { PedidoService } from '../../../pedido/services/pedido-service';
 import { CheckoutService } from '../../services/checkout-service';
 import {
   CheckoutConfirmarRequest,
@@ -15,6 +17,10 @@ import {
   PaymentMethod,
   ShippingMethod,
 } from '../../models/checkout';
+
+const STATUS_PAGO = new Set(['PAGO', 'PAGO_COMPLETO']);
+const POLLING_INTERVALO_MS = 5000;
+const POLLING_TIMEOUT_CARTAO_MS = 120000;
 
 declare const MercadoPago: any;
 
@@ -62,14 +68,18 @@ const ESTADOS_BRASIL: { sigla: string; nome: string }[] = [
 export class CheckoutPagina {
   protected readonly carrinho = inject(Carrinho);
   private readonly checkoutService = inject(CheckoutService);
+  private readonly pedidoService = inject(PedidoService);
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly passo = signal<Passo>('dados');
 
   protected readonly nome = signal('');
   protected readonly email = signal('');
   protected readonly telefone = signal('');
+  protected readonly documento = signal('');
+  protected readonly documentoTocado = signal(false);
   protected readonly metodo = signal<ShippingMethod>('RETIRADA');
   protected readonly cepDestino = signal('');
   protected readonly logradouro = signal('');
@@ -86,6 +96,10 @@ export class CheckoutPagina {
   protected readonly pixQrCode = signal<string | null>(null);
   protected readonly pixQrCodeBase64 = signal<string | null>(null);
   protected readonly pixCopiado = signal(false);
+  protected readonly pixExpiraEm = signal<Date | null>(null);
+  protected readonly pixExpirado = signal(false);
+  protected readonly segundosRestantes = signal(0);
+  protected readonly pagamentoConfirmado = signal(false);
 
   protected readonly brickCarregando = signal(false);
   protected readonly brickErro = signal<string | null>(null);
@@ -94,10 +108,13 @@ export class CheckoutPagina {
 
   private readonly request = computed<CheckoutPreferenciaRequest | null>(() => {
     const itens = this.carrinho.itens();
-    if (itens.length === 0 || !this.nome() || !this.email()) {
-      return null;
-    }
-    if (this.metodo() === 'RETIRADA' && !this.telefone()) {
+    if (
+      itens.length === 0 ||
+      !this.nome() ||
+      !this.email() ||
+      !this.telefone() ||
+      !isCpfCnpjValido(this.documento())
+    ) {
       return null;
     }
     if (
@@ -113,7 +130,12 @@ export class CheckoutPagina {
 
     return {
       itens: itens.map((i) => ({ productId: i.productId, quantity: i.quantity })),
-      comprador: { nome: this.nome(), email: this.email(), telefone: this.telefone() || null },
+      comprador: {
+        nome: this.nome(),
+        email: this.email(),
+        telefone: this.telefone(),
+        document: this.documento(),
+      },
       envio: {
         metodo: this.metodo(),
         enderecoEntrega: this.metodo() === 'CORREIOS' ? this.montarEnderecoEntrega() : null,
@@ -122,6 +144,10 @@ export class CheckoutPagina {
       },
     };
   });
+
+  protected readonly documentoInvalido = computed(
+    () => this.documentoTocado() && this.documento().length > 0 && !isCpfCnpjValido(this.documento()),
+  );
 
   protected readonly preferenciaErro = signal<string | null>(null);
 
@@ -147,6 +173,26 @@ export class CheckoutPagina {
     const digitos = valor.replace(/\D/g, '').slice(0, 8);
     const formatado = digitos.length > 5 ? `${digitos.slice(0, 5)}-${digitos.slice(5)}` : digitos;
     this.cepDestino.set(formatado);
+  }
+
+  onTelefoneChange(valor: string): void {
+    const digitos = valor.replace(/\D/g, '').slice(0, 11);
+    let formatado = digitos;
+    if (digitos.length > 2) {
+      formatado = `(${digitos.slice(0, 2)}) ${digitos.slice(2)}`;
+    }
+    if (digitos.length > 7) {
+      formatado = `(${digitos.slice(0, 2)}) ${digitos.slice(2, 7)}-${digitos.slice(7)}`;
+    }
+    this.telefone.set(formatado);
+  }
+
+  onDocumentoChange(valor: string): void {
+    this.documento.set(formatarCpfCnpj(valor));
+  }
+
+  onDocumentoBlur(): void {
+    this.documentoTocado.set(true);
   }
 
   private montarEnderecoEntrega(): string {
@@ -268,6 +314,8 @@ export class CheckoutPagina {
         this.pixQrCode.set(response.pixQrCode);
         this.pixQrCodeBase64.set(response.pixQrCodeBase64);
         this.pedidoConfirmado.set(response.orderId);
+        this.pixExpiraEm.set(response.pixExpiraEm ? new Date(response.pixExpiraEm) : null);
+        this.iniciarAcompanhamentoPagamento(response.orderId, response.pixExpiraEm);
         resolve();
       },
       error: (err: HttpErrorResponse) => {
@@ -275,6 +323,65 @@ export class CheckoutPagina {
         reject();
       },
     });
+  }
+
+  /**
+   * Acompanha a confirmacao do pagamento sem reload -- Pix ganha cronometro
+   * ate a expiracao do QR code (backend gera com 30min); cartao ganha um
+   * timeout de seguranca menor (a aprovacao e quase instantanea, ver
+   * PaymentWebhookService no backend). Para de fazer polling assim que o
+   * status vira PAGO/PAGO_COMPLETO, expira, ou atinge o timeout.
+   */
+  private iniciarAcompanhamentoPagamento(orderId: string, pixExpiraEmIso: string | null): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const prazoMs = pixExpiraEmIso
+      ? new Date(pixExpiraEmIso).getTime() - Date.now()
+      : POLLING_TIMEOUT_CARTAO_MS;
+    // conta em numero de ticks (nao em Date.now()) pra nao depender do
+    // relogio de parede -- deixa o comportamento determinístico em teste
+    // (fakeAsync) e imune a soneca do dispositivo/aba em segundo plano.
+    const maxTicks = Math.max(1, Math.ceil(prazoMs / POLLING_INTERVALO_MS));
+
+    if (pixExpiraEmIso) {
+      this.segundosRestantes.set(Math.max(0, Math.round(prazoMs / 1000)));
+    }
+
+    interval(POLLING_INTERVALO_MS)
+      .pipe(
+        take(maxTicks),
+        switchMap(() => this.pedidoService.statusPagamento(orderId)),
+        // para de fazer polling assim que confirmar (inclusive: emite o
+        // status confirmado antes de completar)
+        takeWhile((status) => !STATUS_PAGO.has(status.status), true),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (status) => {
+          if (pixExpiraEmIso) {
+            this.segundosRestantes.update((s) => Math.max(0, s - POLLING_INTERVALO_MS / 1000));
+          }
+          if (STATUS_PAGO.has(status.status)) {
+            this.pagamentoConfirmado.set(true);
+          }
+        },
+        complete: () => {
+          if (!this.pagamentoConfirmado() && pixExpiraEmIso) {
+            this.pixExpirado.set(true);
+          }
+        },
+      });
+  }
+
+  protected formatarTempo(): string {
+    const total = this.segundosRestantes();
+    const minutos = Math.floor(total / 60)
+      .toString()
+      .padStart(2, '0');
+    const segundos = (total % 60).toString().padStart(2, '0');
+    return `${minutos}:${segundos}`;
   }
 
   private carregarSdk(): Promise<void> {

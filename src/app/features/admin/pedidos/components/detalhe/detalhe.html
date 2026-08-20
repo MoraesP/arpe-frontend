@@ -9,7 +9,7 @@
   <div class="layout">
     <app-pedido-detalhe [order]="order" />
 
-    @if (podeAgir()) {
+    @if (podeCancelar() || proximaAcao()) {
       <aside class="acoes">
         <h2>Ações</h2>
 
@@ -17,21 +17,40 @@
           <p class="mensagem">{{ mensagem() }}</p>
         }
 
-        @if (order.shippingMethod === 'CORREIOS') {
-          <div class="bloco">
-            <label>
-              Código de rastreio
-              <input type="text" [(ngModel)]="trackingCode" name="trackingCode" placeholder="BR123456789BR" />
-            </label>
-            <button type="button" class="btn btn-primary btn-full" [disabled]="processando()" (click)="postar()">
-              Marcar como enviado
+        @switch (proximaAcao()) {
+          @case ('agendar-retirada') {
+            <button type="button" class="btn btn-primary btn-full" [disabled]="processando()" (click)="agendarRetirada()">
+              Marcar retirada agendada
             </button>
-          </div>
+          }
+          @case ('preparar-envio') {
+            <button type="button" class="btn btn-primary btn-full" [disabled]="processando()" (click)="prepararEnvio()">
+              Marcar preparando envio
+            </button>
+          }
+          @case ('postar') {
+            <div class="bloco">
+              <label>
+                Código de rastreio
+                <input type="text" [(ngModel)]="trackingCode" name="trackingCode" placeholder="BR123456789BR" />
+              </label>
+              <button type="button" class="btn btn-primary btn-full" [disabled]="processando()" (click)="postar()">
+                Marcar como enviado
+              </button>
+            </div>
+          }
+          @case ('concluir') {
+            <button type="button" class="btn btn-primary btn-full" [disabled]="processando()" (click)="concluir()">
+              Marcar como concluído
+            </button>
+          }
         }
 
-        <button type="button" class="btn btn-secondary btn-full cancelar" [disabled]="processando()" (click)="cancelar()">
-          Cancelar pedido
-        </button>
+        @if (podeCancelar()) {
+          <button type="button" class="btn btn-secondary btn-full cancelar" [disabled]="processando()" (click)="cancelar()">
+            Cancelar pedido
+          </button>
+        }
       </aside>
     }
   </div>

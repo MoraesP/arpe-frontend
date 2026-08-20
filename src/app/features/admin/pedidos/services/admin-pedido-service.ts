@@ -21,8 +21,20 @@ export class AdminPedidoService {
     return this.http.get<Order>(`${this.baseUrl}/admin/pedidos/${id}`);
   }
 
+  retiradaAgendada(id: string): Observable<Order> {
+    return this.http.post<Order>(`${this.baseUrl}/admin/pedidos/${id}/retirada-agendada`, {});
+  }
+
+  preparandoEnvio(id: string): Observable<Order> {
+    return this.http.post<Order>(`${this.baseUrl}/admin/pedidos/${id}/preparando-envio`, {});
+  }
+
   postar(id: string, trackingCode: string): Observable<Order> {
     return this.http.post<Order>(`${this.baseUrl}/admin/pedidos/${id}/postar`, { trackingCode });
+  }
+
+  concluir(id: string): Observable<Order> {
+    return this.http.post<Order>(`${this.baseUrl}/admin/pedidos/${id}/concluir`, {});
   }
 
   cancelar(id: string): Observable<Order> {

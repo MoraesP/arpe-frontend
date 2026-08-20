@@ -9,7 +9,8 @@ export interface CheckoutItemRequest {
 export interface CompradorRequest {
   nome: string;
   email: string;
-  telefone: string | null;
+  telefone: string;
+  document: string;
 }
 
 export interface EnvioRequest {
@@ -47,4 +48,5 @@ export interface CheckoutConfirmarResponse {
   totalPagoCents: number;
   pixQrCode: string | null;
   pixQrCodeBase64: string | null;
+  pixExpiraEm: string | null;
 }

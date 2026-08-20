@@ -38,4 +38,12 @@ describe('PedidoService', () => {
     expect(req.request.body).toEqual(request);
     req.flush({});
   });
+
+  it('statusPagamento() faz GET em /pedidos/:id/status-pagamento', () => {
+    service.statusPagamento('order-1').subscribe();
+
+    const req = httpMock.expectOne(`${baseUrl}/pedidos/order-1/status-pagamento`);
+    expect(req.request.method).toBe('GET');
+    req.flush({ status: 'PAGO' });
+  });
 });

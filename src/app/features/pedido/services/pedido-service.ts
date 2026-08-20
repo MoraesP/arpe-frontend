@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { Order } from '../models/order';
+import { Order, OrderStatus } from '../models/order';
 
 export interface SolicitarChaveRequest {
   orderId: string;
@@ -13,6 +13,10 @@ export interface ConsultarPedidoRequest {
   orderId: string;
   email: string;
   chaveValidacao: string;
+}
+
+export interface StatusPagamentoResponse {
+  status: OrderStatus;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -26,5 +30,9 @@ export class PedidoService {
 
   consultar(request: ConsultarPedidoRequest): Observable<Order> {
     return this.http.post<Order>(`${this.baseUrl}/pedidos/consultar`, request);
+  }
+
+  statusPagamento(orderId: string): Observable<StatusPagamentoResponse> {
+    return this.http.get<StatusPagamentoResponse>(`${this.baseUrl}/pedidos/${orderId}/status-pagamento`);
   }
 }
