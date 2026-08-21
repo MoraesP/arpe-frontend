@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { Detalhe } from './detalhe';
 import { ProdutoService } from '../../services/produto-service';
 import { Product } from '../../models/product';
@@ -54,6 +54,25 @@ describe('Detalhe', () => {
     fixture.detectChanges();
     return fixture;
   }
+
+  it('exibe skeleton enquanto o produto esta carregando e some quando resolve', () => {
+    const chamada = new Subject<Product>();
+    service.detalhe.and.returnValue(chamada);
+
+    const fixture = TestBed.createComponent(Detalhe);
+    fixture.detectChanges();
+
+    let secao = fixture.nativeElement.querySelector('section.detalhe');
+    expect(secao?.getAttribute('role')).toBe('status');
+    expect(fixture.nativeElement.querySelectorAll('.skeleton').length).toBeGreaterThan(0);
+
+    chamada.next(criarProduto());
+    fixture.detectChanges();
+
+    secao = fixture.nativeElement.querySelector('section.detalhe');
+    expect(secao?.getAttribute('role')).toBeNull();
+    expect(fixture.nativeElement.querySelectorAll('.skeleton').length).toBe(0);
+  });
 
   it('define título/description/og:image a partir do produto carregado', () => {
     criarFixture(criarProduto());

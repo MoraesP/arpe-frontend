@@ -3,10 +3,11 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ProdutoService } from '../../services/produto-service';
 import { Seo } from '../../../../core/services/seo';
 import { ProdutoCard } from '../../../../shared/components/produto-card/produto-card';
+import { SkeletonCard } from '../../../../shared/components/skeleton-card/skeleton-card';
 
 @Component({
   selector: 'app-home',
-  imports: [ProdutoCard],
+  imports: [ProdutoCard, SkeletonCard],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -14,7 +15,9 @@ export class Home {
   private readonly produtoService = inject(ProdutoService);
   private readonly seo = inject(Seo);
 
-  protected readonly destaques = toSignal(this.produtoService.destaque(), { initialValue: [] });
+  /** null enquanto a chamada esta em voo -- distingue de "carregou e nao tem destaque". */
+  protected readonly destaques = toSignal(this.produtoService.destaque(), { initialValue: null });
+  protected readonly skeletonItems = [0, 1, 2];
 
   constructor() {
     this.seo.atualizar({

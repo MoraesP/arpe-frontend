@@ -22,12 +22,20 @@
     </select>
   </div>
 
-  @if (produtos().length === 0) {
-    <p class="vazio">Nenhum produto encontrado.</p>
+  @if (produtos(); as lista) {
+    @if (lista.length === 0) {
+      <p class="vazio">Nenhum produto encontrado.</p>
+    } @else {
+      <div class="grid">
+        @for (produto of lista; track produto.id) {
+          <app-produto-card [produto]="produto" />
+        }
+      </div>
+    }
   } @else {
-    <div class="grid">
-      @for (produto of produtos(); track produto.id) {
-        <app-produto-card [produto]="produto" />
+    <div class="grid" role="status" aria-label="Carregando produtos">
+      @for (item of skeletonItems; track item) {
+        <app-skeleton-card />
       }
     </div>
   }

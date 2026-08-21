@@ -148,3 +148,41 @@ h1 {
   color: var(--color-text-muted);
   font-style: italic;
 }
+
+// Skeleton de carregamento -- mesmas dimensoes do conteudo real acima, so
+// que o layout nao "pule" quando o produto termina de carregar. O shimmer
+// em si vem da classe global .skeleton (ver styles.scss).
+.sk-titulo {
+  height: 28px;
+  width: 70%;
+  margin-bottom: var(--space-base);
+}
+
+.sk-preco {
+  height: 28px;
+  width: 35%;
+  margin-bottom: var(--space-lg);
+}
+
+.sk-tags {
+  display: flex;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-lg);
+}
+
+.sk-tag {
+  width: 64px;
+  height: 24px;
+  border-radius: var(--radius-full);
+}
+
+.acao .sk-input {
+  width: 4.5rem;
+  height: 48px;
+}
+
+.acao .sk-botao {
+  flex: 1;
+  max-width: 220px;
+  height: 48px;
+}

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { Home } from './home';
 import { ProdutoService } from '../../services/produto-service';
 import { Product } from '../../models/product';
@@ -45,7 +45,24 @@ describe('Home', () => {
   it('carrega os produtos em destaque', () => {
     const fixture = TestBed.createComponent(Home);
     fixture.detectChanges();
-    expect(fixture.componentInstance['destaques']().length).toBe(1);
+    expect(fixture.componentInstance['destaques']()?.length).toBe(1);
+  });
+
+  it('exibe 3 skeleton cards enquanto a chamada esta em voo', () => {
+    const chamada = new Subject<Product[]>();
+    service.destaque.and.returnValue(chamada);
+
+    const fixture = TestBed.createComponent(Home);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('app-skeleton-card').length).toBe(3);
+    expect(fixture.nativeElement.querySelectorAll('app-produto-card').length).toBe(0);
+
+    chamada.next([criarProduto()]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('app-skeleton-card').length).toBe(0);
+    expect(fixture.nativeElement.querySelectorAll('app-produto-card').length).toBe(1);
   });
 
   it('define título/description/canonical da página ao iniciar', () => {

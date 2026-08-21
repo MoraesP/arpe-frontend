@@ -1,6 +1,6 @@
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { Subject, of } from 'rxjs';
 import { Listagem } from './listagem';
 import { ProdutoService } from '../../services/produto-service';
 import { Product, Tag } from '../../models/product';
@@ -65,7 +65,25 @@ describe('Listagem', () => {
     tick(250);
 
     expect(service.listar).toHaveBeenCalledWith({ busca: '', tag: '', ordenar: 'desc' });
-    expect(fixture.componentInstance['produtos']().length).toBe(1);
+    expect(fixture.componentInstance['produtos']()?.length).toBe(1);
+  }));
+
+  it('exibe 3 skeleton cards enquanto a busca esta em voo', fakeAsync(() => {
+    const chamada = new Subject<Product[]>();
+    service.listar.and.returnValue(chamada);
+
+    const fixture = TestBed.createComponent(Listagem);
+    fixture.detectChanges();
+    tick(250);
+
+    expect(fixture.nativeElement.querySelectorAll('app-skeleton-card').length).toBe(3);
+    expect(fixture.nativeElement.querySelectorAll('app-produto-card').length).toBe(0);
+
+    chamada.next([criarProduto()]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('app-skeleton-card').length).toBe(0);
+    expect(fixture.nativeElement.querySelectorAll('app-produto-card').length).toBe(1);
   }));
 
   it('refaz a busca quando busca()/tag()/ordenar() mudam, respeitando o debounce', fakeAsync(() => {

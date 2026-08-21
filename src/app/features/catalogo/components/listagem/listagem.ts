@@ -1,14 +1,15 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { debounceTime, switchMap } from 'rxjs';
+import { debounceTime, startWith, switchMap } from 'rxjs';
 import { Seo } from '../../../../core/services/seo';
 import { ProdutoCard } from '../../../../shared/components/produto-card/produto-card';
+import { SkeletonCard } from '../../../../shared/components/skeleton-card/skeleton-card';
 import { ProdutoService } from '../../services/produto-service';
 
 @Component({
   selector: 'app-listagem',
-  imports: [FormsModule, ProdutoCard],
+  imports: [FormsModule, ProdutoCard, SkeletonCard],
   templateUrl: './listagem.html',
   styleUrl: './listagem.scss',
 })
@@ -42,11 +43,18 @@ export class Listagem {
     ordenar: this.ordenar(),
   }));
 
+  protected readonly skeletonItems = [0, 1, 2];
+
+  /**
+   * null enquanto a busca esta em voo -- startWith(null) reseta pra
+   * "carregando" a cada troca de filtro (novo switchMap), nao so na
+   * primeira carga.
+   */
   protected readonly produtos = toSignal(
     toObservable(this.filtros).pipe(
       debounceTime(250),
-      switchMap((filtros) => this.produtoService.listar(filtros)),
+      switchMap((filtros) => this.produtoService.listar(filtros).pipe(startWith(null))),
     ),
-    { initialValue: [] },
+    { initialValue: null },
   );
 }

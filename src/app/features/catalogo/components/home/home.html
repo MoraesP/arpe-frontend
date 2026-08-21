@@ -1,12 +1,20 @@
 <section class="destaques">
   <h1>Destaques</h1>
 
-  @if (destaques().length === 0) {
-    <p>Nenhum produto em destaque no momento.</p>
+  @if (destaques(); as lista) {
+    @if (lista.length === 0) {
+      <p>Nenhum produto em destaque no momento.</p>
+    } @else {
+      <div class="grid">
+        @for (produto of lista; track produto.id) {
+          <app-produto-card [produto]="produto" />
+        }
+      </div>
+    }
   } @else {
-    <div class="grid">
-      @for (produto of destaques(); track produto.id) {
-        <app-produto-card [produto]="produto" />
+    <div class="grid" role="status" aria-label="Carregando produtos em destaque">
+      @for (item of skeletonItems; track item) {
+        <app-skeleton-card />
       }
     </div>
   }

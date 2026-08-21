@@ -229,6 +229,40 @@ table {
   }
 }
 
+// Skeleton de carregamento -- usavel via class="skeleton" em qualquer
+// template (mesma logica do .btn acima: classe global atravessa a view
+// encapsulation emulada do Angular). Componentes definem so as dimensoes
+// (largura/altura/raio) via classes proprias; o shimmer fica aqui.
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-hairline-soft);
+  border-radius: var(--radius-sm);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+}
+
 .btn-icon-circle {
   display: inline-flex;
   align-items: center;
