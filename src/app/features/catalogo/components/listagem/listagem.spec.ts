@@ -43,6 +43,15 @@ describe('Listagem', () => {
     });
   });
 
+  it('define título/description/canonical da página ao iniciar', () => {
+    const fixture = TestBed.createComponent(Listagem);
+    fixture.detectChanges();
+
+    expect(document.title).toContain('Catálogo');
+    expect(document.title).toContain('ArPe');
+    expect(document.querySelector('link[rel="canonical"]')?.getAttribute('href')).toContain('/produtos');
+  });
+
   it('carrega as tags disponíveis ao iniciar', () => {
     const fixture = TestBed.createComponent(Listagem);
     fixture.detectChanges();

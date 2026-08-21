@@ -1,9 +1,11 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { map, of, switchMap } from 'rxjs';
+import { environment } from '../../../../../environments/environment';
 import { Carrinho } from '../../../../core/services/carrinho';
+import { Seo } from '../../../../core/services/seo';
 import { MoedaPipe } from '../../../../shared/pipes/moeda-pipe';
 import { BadgePreVenda } from '../../../../shared/components/badge-pre-venda/badge-pre-venda';
 import { ProdutoService } from '../../services/produto-service';
@@ -24,6 +26,7 @@ export class Detalhe {
   private readonly route = inject(ActivatedRoute);
   private readonly produtoService = inject(ProdutoService);
   private readonly carrinho = inject(Carrinho);
+  private readonly seo = inject(Seo);
 
   private readonly id = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
@@ -42,6 +45,51 @@ export class Detalhe {
   protected readonly quantidade = signal(1);
   protected readonly adicionado = signal(false);
   protected readonly erroQuantidade = signal<string | null>(null);
+
+  constructor() {
+    // Product schema (JSON-LD) é o que mais ajuda o produto aparecer em
+    // buscas específicas (Google Shopping/rich results usam isso pra
+    // mostrar preço/disponibilidade direto no resultado) -- roda no SSR,
+    // então já sai pronto no HTML que o crawler vê, sem precisar executar
+    // JS. Ver docs/architecture/overview.md#seo.
+    effect(() => {
+      const produto = this.produto();
+      if (!produto) {
+        return;
+      }
+
+      const imagem = fotoCapa(produto);
+      const descricao =
+        produto.description ?? `${produto.name} — colecionável diecast à venda na ArPe.`;
+      const path = `/produtos/${produto.id}`;
+
+      this.seo.atualizar({
+        title: produto.name,
+        description: descricao,
+        path,
+        image: imagem ?? undefined,
+        type: 'product',
+      });
+
+      this.seo.definirJsonLd({
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: produto.name,
+        description: descricao,
+        image: imagem ? [imagem] : undefined,
+        sku: produto.id,
+        offers: {
+          '@type': 'Offer',
+          url: `${environment.siteUrl}${path}`,
+          priceCurrency: 'BRL',
+          price: (produto.priceCents / 100).toFixed(2),
+          availability:
+            produto.quantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          itemCondition: 'https://schema.org/NewCondition',
+        },
+      });
+    });
+  }
 
   private readonly fotoSelecionadaId = signal<string | null>(null);
 

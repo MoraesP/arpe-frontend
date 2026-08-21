@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { debounceTime, switchMap } from 'rxjs';
+import { Seo } from '../../../../core/services/seo';
 import { ProdutoCard } from '../../../../shared/components/produto-card/produto-card';
 import { ProdutoService } from '../../services/produto-service';
 
@@ -13,6 +14,21 @@ import { ProdutoService } from '../../services/produto-service';
 })
 export class Listagem {
   private readonly produtoService = inject(ProdutoService);
+  private readonly seo = inject(Seo);
+
+  constructor() {
+    // Filtros (busca/tag/ordenar) são estado só do signal, nunca refletidos
+    // na URL -- o SSR sempre renderiza a listagem sem filtro nenhum, então
+    // o título/descrição não têm por que variar por filtro (o crawler
+    // nunca vê esse estado de qualquer forma).
+    this.seo.atualizar({
+      title: 'Catálogo — Hot Wheels e Miniaturas Diecast',
+      description:
+        'Veja todos os itens colecionáveis diecast disponíveis: Hot Wheels, miniaturas e pré-vendas. Busque por nome ou filtre por marca/escala.',
+      path: '/produtos',
+      type: 'website',
+    });
+  }
 
   protected readonly busca = signal('');
   protected readonly tagSelecionada = signal('');
