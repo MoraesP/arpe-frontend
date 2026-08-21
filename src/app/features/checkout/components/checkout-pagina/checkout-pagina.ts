@@ -121,6 +121,16 @@ export class CheckoutPagina {
       next: (config) => this.pixDiscountPercentage.set(config.enabled ? config.percentage : null),
       error: () => this.pixDiscountPercentage.set(null),
     });
+
+    // Carrega o script do SDK assim que a página do checkout monta, não só
+    // quando o comprador chega no passo de pagamento -- não inicializa o
+    // Brick ainda (isso continua em irParaPagamento(), só depois do total
+    // ser conhecido), só deixa o SDK pronto/detectável mais cedo. Acionado
+    // pelo achado de "qualidade da integração" do Mercado Pago, que não
+    // detectava o SDK instalado (ver docs/specs/pagamento.md#qualidade-da-integracao).
+    if (isPlatformBrowser(this.platformId)) {
+      this.carregarSdk().catch(() => {});
+    }
   }
 
   private readonly request = computed<CheckoutPreferenciaRequest | null>(() => {

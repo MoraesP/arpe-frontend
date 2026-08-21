@@ -40,7 +40,14 @@ describe('CheckoutPagina', () => {
 
   beforeEach(() => {
     localStorage.clear();
-    delete (window as any).MercadoPago;
+    // stub, não delete: o componente agora carrega o SDK assim que a
+    // página monta (não só ao ir pro passo de pagamento) -- sem isso aqui,
+    // testes fora do describe de Brick tentariam injetar o <script> real
+    // do SDK e fazer uma requisição de rede de verdade. Os testes que
+    // precisam do Brick de fato sobrescrevem isso no próprio beforeEach.
+    (window as any).MercadoPago = function () {
+      return { bricks: () => ({ create: () => Promise.resolve({ unmount: () => {} }) }) };
+    };
 
     checkoutService = jasmine.createSpyObj<CheckoutService>('CheckoutService', [
       'preferencia',
