@@ -39,10 +39,22 @@ app.get('/robots.txt', (_req, res) => {
 });
 
 /**
+ * Backend (Render, plano grátis) dorme com inatividade e pode levar até
+ * ~2min pra acordar na primeira requisição (ver docs/handoff.md) -- sem
+ * timeout aqui, /sitemap.xml ficaria pendurado esperando isso, e o
+ * Googlebot desiste bem antes (achado real: sitemap voltou "não foi
+ * possível buscar" no Search Console). Cache em memória evita repetir a
+ * espera a cada crawl, e serve a última lista boa se o backend cair.
+ */
+let sitemapCache: { produtos: { id: string; createdAt: string }[]; timestamp: number } | null = null;
+const SITEMAP_CACHE_TTL_MS = 10 * 60 * 1000;
+const SITEMAP_FETCH_TIMEOUT_MS = 8000;
+
+/**
  * Gerado dinamicamente (não é arquivo estático) porque a lista de produtos
  * muda o tempo todo -- busca direto na API pública do backend. Se a
- * chamada falhar, devolve só as páginas estáticas em vez de derrubar a
- * rota inteira.
+ * chamada falhar/demorar, devolve o cache anterior (ou só as páginas
+ * estáticas, se nunca teve cache) em vez de travar a rota inteira.
  */
 app.get('/sitemap.xml', async (_req, res) => {
   const paginasEstaticas = [
@@ -50,15 +62,22 @@ app.get('/sitemap.xml', async (_req, res) => {
     { loc: `${environment.siteUrl}/produtos`, changefreq: 'daily', priority: '0.9' },
   ];
 
-  let produtos: { id: string; createdAt: string }[] = [];
-  try {
-    const resposta = await fetch(`${environment.apiBaseUrl}/produtos`);
-    if (resposta.ok) {
-      produtos = await resposta.json();
+  let produtos: { id: string; createdAt: string }[] = sitemapCache?.produtos ?? [];
+  const cacheValido = sitemapCache && Date.now() - sitemapCache.timestamp < SITEMAP_CACHE_TTL_MS;
+
+  if (!cacheValido) {
+    try {
+      const resposta = await fetch(`${environment.apiBaseUrl}/produtos`, {
+        signal: AbortSignal.timeout(SITEMAP_FETCH_TIMEOUT_MS),
+      });
+      if (resposta.ok) {
+        produtos = await resposta.json();
+        sitemapCache = { produtos, timestamp: Date.now() };
+      }
+    } catch {
+      // backend lento/fora do ar -- segue com o que tinha em cache (ou
+      // vazio, se essa for a primeira requisição desde o deploy)
     }
-  } catch {
-    // sitemap parcial (só páginas estáticas) é melhor que erro 500 -- o
-    // crawler tenta de novo mais tarde
   }
 
   const urls = [
