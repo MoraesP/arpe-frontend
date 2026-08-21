@@ -21,9 +21,9 @@ export class Home {
 
   constructor() {
     this.seo.atualizar({
-      title: 'Colecionáveis Diecast — Hot Wheels e Miniaturas',
+      title: 'ArPe - Colecionáveis',
       description:
-        'Loja de itens colecionáveis diecast: Hot Wheels, miniaturas 1:64 e 1:18 e itens de pré-venda. Retirada em Maringá/PR ou envio pelos Correios.',
+        'Loja de itens colecionáveis: Hot Wheels, miniaturas 1:64 e itens de pré-venda.',
       path: '/',
       type: 'website',
     });

@@ -23,9 +23,9 @@ export class Listagem {
     // o título/descrição não têm por que variar por filtro (o crawler
     // nunca vê esse estado de qualquer forma).
     this.seo.atualizar({
-      title: 'Catálogo — Hot Wheels e Miniaturas Diecast',
+      title: 'ArPe - Catálogo',
       description:
-        'Veja todos os itens colecionáveis diecast disponíveis: Hot Wheels, miniaturas e pré-vendas. Busque por nome ou filtre por marca/escala.',
+        'Veja todos os itens colecionáveis disponíveis: Hot Wheels, miniaturas e pré-vendas. Busque por nome ou filtre por marca/escala.',
       path: '/produtos',
       type: 'website',
     });
