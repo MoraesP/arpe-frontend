@@ -6,6 +6,7 @@ import { Product } from '../../../catalogo/models/product';
 
 export interface ProductRequest {
   name: string;
+  slug: string;
   description: string | null;
   priceCents: number;
   quantity: number;
@@ -27,6 +28,10 @@ export class AdminProdutoService {
 
   listar(): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.baseUrl}/admin/produtos`);
+  }
+
+  buscarPorId(id: string): Observable<Product> {
+    return this.http.get<Product>(`${this.baseUrl}/admin/produtos/${id}`);
   }
 
   criar(request: ProductRequest): Observable<Product> {

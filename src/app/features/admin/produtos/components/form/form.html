@@ -10,6 +10,18 @@
     </label>
 
     <label>
+      Slug (usado na URL do produto)
+      <input
+        type="text"
+        [(ngModel)]="slug"
+        name="slug"
+        pattern="[a-z0-9]+(-[a-z0-9]+)*"
+        placeholder="hot-wheels-fusca-1967"
+        required
+      />
+    </label>
+
+    <label>
       Descrição
       <textarea [(ngModel)]="description" name="description"></textarea>
     </label>

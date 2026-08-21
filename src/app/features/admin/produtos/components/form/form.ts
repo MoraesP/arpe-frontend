@@ -3,7 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AdminProdutoService, ProductRequest } from '../../services/admin-produto-service';
-import { ProdutoService } from '../../../../catalogo/services/produto-service';
 import { ProductPhoto } from '../../../../catalogo/models/product';
 
 const MAX_FOTOS = 5;
@@ -18,12 +17,12 @@ export class Form {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly adminProdutoService = inject(AdminProdutoService);
-  private readonly produtoService = inject(ProdutoService);
 
   protected readonly produtoId = this.route.snapshot.paramMap.get('id');
   protected readonly modoEdicao = this.produtoId !== null;
 
   protected readonly name = signal('');
+  protected readonly slug = signal('');
   protected readonly description = signal('');
   protected readonly priceReais = signal<number | null>(null);
   protected readonly quantity = signal<number | null>(null);
@@ -50,9 +49,10 @@ export class Form {
   constructor() {
     if (this.produtoId) {
       this.carregando.set(true);
-      this.produtoService.detalhe(this.produtoId).subscribe({
+      this.adminProdutoService.buscarPorId(this.produtoId).subscribe({
         next: (produto) => {
           this.name.set(produto.name);
+          this.slug.set(produto.slug);
           this.description.set(produto.description ?? '');
           this.priceReais.set(produto.priceCents / 100);
           this.quantity.set(produto.quantity);
@@ -90,6 +90,7 @@ export class Form {
 
     const request: ProductRequest = {
       name: this.name(),
+      slug: this.slug(),
       description: this.description() || null,
       priceCents: Math.round((this.priceReais() ?? 0) * 100),
       quantity: this.quantity() ?? 0,

@@ -46,7 +46,7 @@ app.get('/robots.txt', (_req, res) => {
  * possível buscar" no Search Console). Cache em memória evita repetir a
  * espera a cada crawl, e serve a última lista boa se o backend cair.
  */
-let sitemapCache: { produtos: { id: string; createdAt: string }[]; timestamp: number } | null = null;
+let sitemapCache: { produtos: { slug: string; createdAt: string }[]; timestamp: number } | null = null;
 const SITEMAP_CACHE_TTL_MS = 10 * 60 * 1000;
 const SITEMAP_FETCH_TIMEOUT_MS = 8000;
 
@@ -62,7 +62,7 @@ app.get('/sitemap.xml', async (_req, res) => {
     { loc: `${environment.siteUrl}/produtos`, changefreq: 'daily', priority: '0.9' },
   ];
 
-  let produtos: { id: string; createdAt: string }[] = sitemapCache?.produtos ?? [];
+  let produtos: { slug: string; createdAt: string }[] = sitemapCache?.produtos ?? [];
   const cacheValido = sitemapCache && Date.now() - sitemapCache.timestamp < SITEMAP_CACHE_TTL_MS;
 
   if (!cacheValido) {
@@ -84,7 +84,7 @@ app.get('/sitemap.xml', async (_req, res) => {
     ...paginasEstaticas.map((p) => `  <url><loc>${p.loc}</loc><changefreq>${p.changefreq}</changefreq><priority>${p.priority}</priority></url>`),
     ...produtos.map(
       (p) =>
-        `  <url><loc>${environment.siteUrl}/produtos/${p.id}</loc><lastmod>${p.createdAt.slice(0, 10)}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`,
+        `  <url><loc>${environment.siteUrl}/produtos/${p.slug}</loc><lastmod>${p.createdAt.slice(0, 10)}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>`,
     ),
   ];
 

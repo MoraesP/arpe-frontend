@@ -12,6 +12,7 @@ export interface ProductPhoto {
 export interface Product {
   id: string;
   name: string;
+  slug: string;
   description: string | null;
   photos: ProductPhoto[];
   priceCents: number;

@@ -11,6 +11,7 @@ describe('AdminProdutoService', () => {
 
   const request: ProductRequest = {
     name: 'Ferrari F40',
+    slug: 'ferrari-f40',
     description: 'Miniatura 1:18',
     priceCents: 29900,
     quantity: 5,
@@ -41,6 +42,14 @@ describe('AdminProdutoService', () => {
     const req = httpMock.expectOne(`${baseUrl}/admin/produtos`);
     expect(req.request.method).toBe('GET');
     req.flush([]);
+  });
+
+  it('buscarPorId() faz GET em /admin/produtos/:id', () => {
+    service.buscarPorId('p1').subscribe();
+
+    const req = httpMock.expectOne(`${baseUrl}/admin/produtos/p1`);
+    expect(req.request.method).toBe('GET');
+    req.flush({});
   });
 
   it('criar() faz POST em /admin/produtos com o corpo da requisição', () => {

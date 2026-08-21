@@ -1,4 +1,4 @@
-<a class="card" [routerLink]="['/produtos', produto().id]">
+<a class="card" [routerLink]="['/produtos', produto().slug]">
   <div class="foto-wrap">
     @if (fotoCapa(produto()); as capa) {
       <img [src]="capa" [alt]="produto().name" />

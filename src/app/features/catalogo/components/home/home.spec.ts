@@ -8,6 +8,7 @@ import { Product } from '../../models/product';
 function criarProduto(overrides: Partial<Product> = {}): Product {
   return {
     id: 'p1',
+    slug: 'ferrari-f40',
     name: 'Ferrari F40',
     description: null,
     photos: [],

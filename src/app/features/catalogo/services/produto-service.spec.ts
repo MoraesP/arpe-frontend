@@ -58,10 +58,10 @@ describe('ProdutoService', () => {
     req.flush([]);
   });
 
-  it('detalhe() faz GET em /produtos/:id', () => {
-    service.detalhe('abc-123').subscribe();
+  it('detalhe() faz GET em /produtos/:slug', () => {
+    service.detalhe('hot-wheels-fusca-1967').subscribe();
 
-    const req = httpMock.expectOne(`${baseUrl}/produtos/abc-123`);
+    const req = httpMock.expectOne(`${baseUrl}/produtos/hot-wheels-fusca-1967`);
     expect(req.request.method).toBe('GET');
     req.flush({});
   });

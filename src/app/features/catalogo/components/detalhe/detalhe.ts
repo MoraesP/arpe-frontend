@@ -28,16 +28,16 @@ export class Detalhe {
   private readonly carrinho = inject(Carrinho);
   private readonly seo = inject(Seo);
 
-  private readonly id = toSignal(
-    this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
+  private readonly slug = toSignal(
+    this.route.paramMap.pipe(map((params) => params.get('slug') ?? '')),
     {
       initialValue: '',
     },
   );
 
   protected readonly produto = toSignal(
-    toObservable(this.id).pipe(
-      switchMap((id) => (id ? this.produtoService.detalhe(id) : of(null))),
+    toObservable(this.slug).pipe(
+      switchMap((slug) => (slug ? this.produtoService.detalhe(slug) : of(null))),
     ),
     { initialValue: null },
   );
@@ -61,7 +61,7 @@ export class Detalhe {
       const imagem = fotoCapa(produto);
       const descricao =
         produto.description ?? `${produto.name} — colecionável diecast à venda na ArPe.`;
-      const path = `/produtos/${produto.id}`;
+      const path = `/produtos/${produto.slug}`;
 
       this.seo.atualizar({
         title: produto.name,

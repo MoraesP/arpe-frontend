@@ -8,6 +8,7 @@ import { Product } from '../../models/product';
 function criarProduto(overrides: Partial<Product> = {}): Product {
   return {
     id: 'p1',
+    slug: 'hot-wheels-fusca-1967',
     name: 'Hot Wheels Fusca 1967',
     description: 'Miniatura 1:64 de colecionador',
     photos: [{ id: 'foto1', url: 'https://x.com/foto.jpg', isFavorite: true }],
@@ -41,7 +42,7 @@ describe('Detalhe', () => {
         { provide: ProdutoService, useValue: service },
         {
           provide: ActivatedRoute,
-          useValue: { paramMap: of(convertToParamMap({ id: 'p1' })) },
+          useValue: { paramMap: of(convertToParamMap({ slug: 'hot-wheels-fusca-1967' })) },
         },
       ],
     });

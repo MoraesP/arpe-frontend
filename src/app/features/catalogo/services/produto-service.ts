@@ -22,8 +22,8 @@ export class ProdutoService {
     return this.http.get<Product[]>(`${this.baseUrl}/produtos`, { params });
   }
 
-  detalhe(id: string): Observable<Product> {
-    return this.http.get<Product>(`${this.baseUrl}/produtos/${id}`);
+  detalhe(slug: string): Observable<Product> {
+    return this.http.get<Product>(`${this.baseUrl}/produtos/${slug}`);
   }
 
   tags(): Observable<Tag[]> {
